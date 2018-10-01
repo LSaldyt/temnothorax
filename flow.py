@@ -15,36 +15,118 @@ arrive-at-nest(ant, x):
 accept-loc(ant, x):
     pass
 '''
+'''
+    committed:
+        follow(i, f):
+            search(i, f)
+            getlost * (1-losttrans): arrive-at-nest(j)
+            1-getlost +  getlost * losttrans: transport(i, f)
+        search(i, f):
+            find(j, i) : arrive-at-nest(j)
+            c-picked-up: carried(i, f)
+            find(i, i) : at-nest(i, f)
+        carried(i, f):
+            arrive-at-nest(x)
+            at-nest(i, f)
+        at-nest(i, f):
+            follow-leader : follow(i, f)
+            c-search: search(i, f)
+            recruit(i) : pre-reverse
+        transport(i, f):
+            stop-trans : search(i, f)
+            1-stop-trans: pre-reverse
+        reverse-tandem(i, f):
+            transport(i, f)
+        pre-reverse:
+            1-reverse: transport(i, f)
+            reverse: reverse-tandem(i, f)
+'''
 
 states = {
-        'exporation' :  {
-            'follow' : {},
-            'search' : {},
-            'carried' : {},
-            'at-nest' : {}
-            },
-        'assessment' : {
-            'follow'  : {},
-            'search'  : {},
-            'carried' : {},
-            'at-nest' : {}
-            },
+        'exporation': {
+            'follow': {
+                'follow-leader' : '',
+                'get-lost'      : '' },
+            'search': {
+                'picked-up' : '',
+                'find'      : ''},
+            'carried': {
+                'arrive' : ''},
+            'at-nest':{
+                'search' : ''
+                'follow-leader' : ''}},
+        'assessment':{
+            'follow': {
+                'get-lost' : ''
+                'arrive' : ''},
+            'search': {
+                'find' : 'arrive',
+                'picked-up' : ''},
+            'carried': {
+                'arrive' : ''},
+            'at-nest': {
+                'accept' : '',
+                'search' : '',
+                'follow-leader' : ''}},
         'canvassing' : {
-            'search' : {},
-            'carried' : {},
-            'at-nest' : {},
-            'lead-forward' : {}
-            },
-        'committed' : {
-            'follow'  : {},
-            'search'  : {},
-            'carried' : {},
-            'at-nest' : {},
-            'transport' : {},
-            'reverse-tandem' : {},
-            'pre-reverse' : {}
-            }
+            'search': {
+                'find' : 'arrive',
+                'picked-up' : 'carried'
+                },
+            'carried': {
+                '', 'arrive',
+                },
+            'at-nest' : {
+                '': 'search',
+                'recruit' : 'accept-loc'
+                },
+            'lead-forward' : {
+                'at-nest' : ''
+                }
+        },
+        '''
+        transport(i, f):
+            stop-trans : search(i, f)
+            1-stop-trans: pre-reverse
+        reverse-tandem(i, f):
+            transport(i, f)
+        pre-reverse:
+            1-reverse: transport(i, f)
+            reverse: reverse-tandem(i, f)
+            ''' : {},
+        'committed' :
+        {
+            'follow'         : {
+                'search' : '',
+                'getlost-trans' : 'arrive',
+                'invgetlost + getlost*losttrans' : 'transport',
+                },
+            'search'         : {
+                'find' : '',
+                'picked-up' : ''
+                },
+            'carried'        : {
+                'arrive' : ''
+                'at-nest' : ''
+                },
+            'at-nest'        : {
+                'follow-leader' : 'follow',
+                'search' : 'search',
+                'recruit' : 'pre-reverse'
+                },
+            'transport'      : {
+                'stop-trans' : 'search',
+                'invstoptrans' : 'pre-reverse'
+                },
+            'reverse-tandem' : {
+                'transport' : ''
+                },
+            'pre-reverse'    : {
+                '1-reverse' : 'transport',
+                'reverse'  : 'reverse-tandem'
+                }
         }
+}
 
 
 
