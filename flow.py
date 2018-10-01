@@ -1,3 +1,4 @@
+'''
 i denotes nest that the ant is currently assessing or recruiting to
 f denotes the nest from which the ant recruits
 
@@ -81,4 +82,4 @@ states:
         pre-reverse:
             1-reverse: transport(i, f)
             reverse: reverse-tandem(i, f)
-
+'''
