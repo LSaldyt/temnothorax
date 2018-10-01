@@ -14,6 +14,41 @@ arrive-at-nest(ant, x):
 
 accept-loc(ant, x):
     pass
+'''
+
+states = {
+        'exporation' :  {
+            'follow' : {},
+            'search' : {},
+            'carried' : {},
+            'at-nest' : {}
+            },
+        'assessment' : {
+            'follow'  : {},
+            'search'  : {},
+            'carried' : {},
+            'at-nest' : {}
+            },
+        'canvassing' : {
+            'search' : {},
+            'carried' : {},
+            'at-nest' : {},
+            'lead-forward' : {}
+            },
+        'committed' : {
+            'follow'  : {},
+            'search'  : {},
+            'carried' : {},
+            'at-nest' : {},
+            'transport' : {},
+            'reverse-tandem' : {},
+            'pre-reverse' : {}
+            }
+        }
+
+
+
+'''
 
 states:
     exploration:

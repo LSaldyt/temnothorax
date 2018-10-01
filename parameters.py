@@ -38,6 +38,7 @@ Reverse	0.06±0.01	2117
 LostTrans	0.56±0.12	16
 '''
 
+'''
 Structure: paramname, three-tuple {p : (mean, sd, n)}
 
 find-0-n  : (0.01, 0.002, 484)
@@ -71,6 +72,7 @@ trans-in-nest-time : (1.0, 0.02, 1926)
 pause-trans   : (0.25, 0.19, 535)
 reverse       : (0.06, 0.1, 2117)
 lost-trans    : (0.56, 0.12, 16)
+'''
 
 
 '''
