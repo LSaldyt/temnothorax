@@ -38,41 +38,42 @@ Reverse	0.06±0.01	2117
 LostTrans	0.56±0.12	16
 '''
 
-'''
-Structure: paramname, three-tuple {p : (mean, sd, n)}
+#Structure: paramname, three-tuple {p : (mean, sd, n)}
 
-find-0-n  : (0.01, 0.002, 484)
-find-0-0  : (0.18, 0.1, 484)
-find-n-n  : (0.09, 0.002, 2028)
-e-search  : (0.51, 0.02, 473)
-a-search  : (0.23, 0.01, 1464)
-c-search  : (0.12, 0.02, 158)
-cm-search : (0.06, 0.01, 642)
-prop-lost : (0.91, 0.04, 55)
-duration-forward : (7.2, 1.6, 4)
-duration-reverse : (4.6, 0.5, 9)
-reject-thick-thin : (1.0, 0.0, 16)
-reject-thin-thick : (0.03, 0.03, 37)
-pickedup-explore : (0.01, 0.001, 110)
-pickedup-assess  : (0.005, 0.001, 75)
-pickedup-canvas  : (0.005, 0.002, 4)
-pickedup-committed : (0.005, 0.001, 45)
-accept-thick : (0.053, 0.004, 257)
-accept-thin  : (0.034, 0.006, 278)
-accept-dark  : (0.032, 0.005, 84)
-accept-light : (0.013, 0.006, 70)
-min-accept   : (5, 0, 535)
-prop-rec-transport : (0.45, 0.01, 365)
-prop-rec-tandem    : (0.65, 0.03, 16)
-recruit-thick : (0.23, 0.01, 405)
-recruit-dark  : (0.23, 0.01, 405)
-recruit-thin  : (0.15, 0.02, 395)
-recruit-light  : (0.15, 0.02, 395)
-trans-in-nest-time : (1.0, 0.02, 1926)
-pause-trans   : (0.25, 0.19, 535)
-reverse       : (0.06, 0.1, 2117)
-lost-trans    : (0.56, 0.12, 16)
-'''
+parameters = {
+
+'find-0-n'  : (0.01, 0.002, 484),
+'find-0-0'  : (0.18, 0.1, 484),
+'find-n-n'  : (0.09, 0.002, 2028),
+'e-search'  : (0.51, 0.02, 473),
+'a-search'  : (0.23, 0.01, 1464),
+'c-search'  : (0.12, 0.02, 158),
+'cm-search' : (0.06, 0.01, 642),
+'prop-lost' : (0.91, 0.04, 55),
+'duration-forward' : (7.2, 1.6, 4),
+'duration-reverse' : (4.6, 0.5, 9),
+'reject-thick-thin' : (1.0, 0.0, 16),
+'reject-thin-thick' : (0.03, 0.03, 37),
+'pickedup-explore' : (0.01, 0.001, 110),
+'pickedup-assess'  : (0.005, 0.001, 75),
+'pickedup-canvas'  : (0.005, 0.002, 4),
+'pickedup-committed' : (0.005, 0.001, 45),
+'accept-thick' : (0.053, 0.004, 257),
+'accept-thin'  : (0.034, 0.006, 278),
+'accept-dark'  : (0.032, 0.005, 84),
+'accept-light' : (0.013, 0.006, 70),
+'min-accept'   : (5, 0, 535),
+'prop-rec-transport' : (0.45, 0.01, 365),
+'prop-rec-tandem'    : (0.65, 0.03, 16),
+'recruit-thick' : (0.23, 0.01, 405),
+'recruit-dark'  : (0.23, 0.01, 405),
+'recruit-thin'  : (0.15, 0.02, 395),
+'recruit-light'  : (0.15, 0.02, 395),
+'trans-in-nest-time' : (1.0, 0.02, 1926),
+'pause-trans'   : (0.25, 0.19, 535),
+'reverse'       : (0.06, 0.1, 2117),
+'lost-trans'    : (0.56, 0.12, 16)
+}
 
 
 '''

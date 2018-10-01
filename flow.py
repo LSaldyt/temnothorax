@@ -15,32 +15,6 @@ arrive-at-nest(ant, x):
 accept-loc(ant, x):
     pass
 '''
-'''
-    committed:
-        follow(i, f):
-            search(i, f)
-            getlost * (1-losttrans): arrive-at-nest(j)
-            1-getlost +  getlost * losttrans: transport(i, f)
-        search(i, f):
-            find(j, i) : arrive-at-nest(j)
-            c-picked-up: carried(i, f)
-            find(i, i) : at-nest(i, f)
-        carried(i, f):
-            arrive-at-nest(x)
-            at-nest(i, f)
-        at-nest(i, f):
-            follow-leader : follow(i, f)
-            c-search: search(i, f)
-            recruit(i) : pre-reverse
-        transport(i, f):
-            stop-trans : search(i, f)
-            1-stop-trans: pre-reverse
-        reverse-tandem(i, f):
-            transport(i, f)
-        pre-reverse:
-            1-reverse: transport(i, f)
-            reverse: reverse-tandem(i, f)
-'''
 
 states = {
         'exporation': {
@@ -53,11 +27,11 @@ states = {
             'carried': {
                 'arrive' : ''},
             'at-nest':{
-                'search' : ''
+                'search' : '',
                 'follow-leader' : ''}},
         'assessment':{
             'follow': {
-                'get-lost' : ''
+                'get-lost' : '',
                 'arrive' : ''},
             'search': {
                 'find' : 'arrive',
@@ -84,16 +58,6 @@ states = {
                 'at-nest' : ''
                 }
         },
-        '''
-        transport(i, f):
-            stop-trans : search(i, f)
-            1-stop-trans: pre-reverse
-        reverse-tandem(i, f):
-            transport(i, f)
-        pre-reverse:
-            1-reverse: transport(i, f)
-            reverse: reverse-tandem(i, f)
-            ''' : {},
         'committed' :
         {
             'follow'         : {
@@ -106,7 +70,7 @@ states = {
                 'picked-up' : ''
                 },
             'carried'        : {
-                'arrive' : ''
+                'arrive' : '',
                 'at-nest' : ''
                 },
             'at-nest'        : {
