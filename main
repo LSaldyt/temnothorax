@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import sys
+import sys, time
 from pprint import pprint
 
 from ant        import Ant
 from states     import states
 from update     import update
+from display    import display
 from parameters import parameters
 
 def main(args):
@@ -14,10 +15,11 @@ def main(args):
     step = 0
     try:
         while True:
-            for ant in ants:
-                update(states, parameters, ant)
+            ants = [update(states, parameters, ant) for ant in ants]
+            display(ants)
+            print(step)
             step += 1
-            print(str(step) + '\r', end='')
+
     except KeyboardInterrupt:
         print('Ran {} steps'.format(step))
 

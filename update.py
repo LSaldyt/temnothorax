@@ -11,7 +11,4 @@ def update(states, parameters, ant):
     transitions  = [v for k, v in options]
 
     transition = random.choices(transitions, weights)[0]
-    print(ant)
-    ant = transition(ant)
-    print(ant)
-    1/0
+    return transition(ant)
