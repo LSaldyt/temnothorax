@@ -1,3 +1,4 @@
+from transition import transition
 '''
 i denotes nest that the ant is currently assessing or recruiting to
 f denotes the nest from which the ant recruits
@@ -17,25 +18,34 @@ accept-loc(ant, x):
 '''
 
 states = {
-        'exporation': {
-            'follow': {
-                'follow-leader' : '',
-                'get-lost'      : '' },
-            'search': {
-                'picked-up' : '',
-                'find'      : ''},
-            'carried': {
-                'arrive' : ''},
-            'at-nest':{
-                'search' : '',
-                'follow-leader' : ''}},
+        'exploration': {
+            'at-nest' : {
+                'test1' : transition(state='assessment', substate='search'),
+                'test2' : transition()
+                }
+            #'follow': {
+            #    'follow-leader' : '',
+            #    'get-lost'      : 'search' },
+            #'search': {
+            #    'picked-up' : '',
+            #    'find'      : ''},
+            #'carried': {
+            #    'arrive' : ''},
+            #'at-nest':{
+            #    'search' : '',
+            #    'follow-leader' : ''}
+            },
         'assessment':{
             'follow': {
                 'get-lost' : '',
                 'arrive' : ''},
-            'search': {
-                'find' : 'arrive',
-                'picked-up' : ''},
+            'search' : {
+                'test3' : transition(state='exploration', substate='at-nest'),
+                'test4' : transition()
+                },
+            #'search': {
+            #    'find' : 'arrive',
+            #    'picked-up' : ''},
             'carried': {
                 'arrive' : ''},
             'at-nest': {

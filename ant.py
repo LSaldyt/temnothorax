@@ -1,6 +1,4 @@
 from collections import namedtuple
 
-Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source'])
+Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i'])
 
-def ant():
-    return Ant('exploration', 'at-nest', 0, None)

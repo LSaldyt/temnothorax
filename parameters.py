@@ -41,7 +41,6 @@ LostTrans	0.56±0.12	16
 #Structure: paramname, three-tuple {p : (mean, sd, n)}
 
 parameters = {
-
 'find-0-n'  : (0.01, 0.002, 484),
 'find-0-0'  : (0.18, 0.1, 484),
 'find-n-n'  : (0.09, 0.002, 2028),
@@ -72,7 +71,11 @@ parameters = {
 'trans-in-nest-time' : (1.0, 0.02, 1926),
 'pause-trans'   : (0.25, 0.19, 535),
 'reverse'       : (0.06, 0.1, 2117),
-'lost-trans'    : (0.56, 0.12, 16)
+'lost-trans'    : (0.56, 0.12, 16),
+'test1' : (0.5, 0, 0),
+'test2' : (0.5, 0, 0),
+'test3' : (0.5, 0, 0),
+'test4' : (0.5, 0, 0)
 }
 
 
