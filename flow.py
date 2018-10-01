@@ -4,6 +4,7 @@ f denotes the nest from which the ant recruits
 
 ant:
     state: {exporation, assessment, canvassing, committed} (exploration initially)
+    sub-state : {follow, search, carried.. }
     current : index representing current assessment or recruitment nest (0 initially)
     source  : index representing source nest (None initially)
 
@@ -17,7 +18,7 @@ accept-loc(ant, x):
 states:
     exploration:
         follow(0, -):
-            arrive-at-nest(x)
+            follow-leader : arrive-at-nest(x)
             get-lost: e-search(0, -)
         search(0, -):
             e-picked-up : e-carried(0, -)

@@ -37,7 +37,9 @@ PauseTrans	0.25±0.19	535
 Reverse	0.06±0.01	2117
 LostTrans	0.56±0.12	16
 '''
+
 Structure: paramname, three-tuple {p : (mean, sd, n)}
+
 find-0-n  : (0.01, 0.002, 484)
 find-0-0  : (0.18, 0.1, 484)
 find-n-n  : (0.09, 0.002, 2028)
@@ -72,7 +74,7 @@ lost-trans    : (0.56, 0.12, 16)
 
 
 '''
-What are these parameters saying? See what paper says.
+What are these parameters? See what paper says.
 QuorumMet	T: 0.017±0.001, k: 2.0±0.2	443
 RecTimeTandem
  Mean	b: 17±1 min, a: 11±1 min, k: 2.0±0.9	152
