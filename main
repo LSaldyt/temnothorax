@@ -16,8 +16,10 @@ def main(args):
     try:
         while True:
             ants = [update(states, parameters, ant) for ant in ants]
-            display(ants)
-            print(step)
+            #display(ants)
+            #print(step)
+            if step % 1000 == 0:
+                print(step)
             step += 1
 
     except KeyboardInterrupt:

@@ -17,55 +17,59 @@ accept-loc(ant, x):
     pass
 '''
 
+#def arrive(states, parameters, ant):
+#pass
+
+arrive = transition(substate='at-nest')
+
 states = {
         'exploration': {
-            'at-nest' : {
-                'test1' : transition(state='assessment', substate='search'),
-                'test2' : transition()
+            'follow': {
+                #'follow-leader' : transition(state=''), (Dependent on leaders and their locations)
+                'get-lost' : transition(substate='search')},
+            'search': {
+                'picked-up' : transition(substate='carried')
+                #'find' : '' (Dependent on nest)
+                },
+            'carried': {
+                #'arrive' : arrive (Dependent on number of ants in carrying state)
+            },
+            'at-nest':{
+                'search' : transition(substate='search')
+                #'follow-leader' : transition()
                 }
-            #'follow': {
-            #    'follow-leader' : '',
-            #    'get-lost'      : 'search' },
-            #'search': {
-            #    'picked-up' : '',
-            #    'find'      : ''},
-            #'carried': {
-            #    'arrive' : ''},
-            #'at-nest':{
-            #    'search' : '',
-            #    'follow-leader' : ''}
             },
         'assessment':{
             'follow': {
-                'get-lost' : '',
-                'arrive' : ''},
-            'search' : {
-                'test3' : transition(state='exploration', substate='at-nest'),
-                'test4' : transition()
+                'get-lost' : transition(substate='search'),
+                #'arrive' : '' (Dependent on leaders)
                 },
-            #'search': {
-            #    'find' : 'arrive',
-            #    'picked-up' : ''},
+            'search': {
+                #'find' : 'arrive', (Dependent on nests)
+                'picked-up' : transition(substate='carried')
+                },
             'carried': {
-                'arrive' : ''},
+                #'arrive' : '' (Dependent on carrying ant)
+                },
             'at-nest': {
-                'accept' : '',
-                'search' : '',
-                'follow-leader' : ''}},
+                #'accept' : '', (Dependent on nest)
+                'search' : transition(substate='search')
+                #'follow-leader' : '' (Dependent on leaders)
+                }},
         'canvassing' : {
             'search': {
-                'find' : 'arrive',
-                'picked-up' : 'carried'
+                #'find' : 'arrive', (Dependent on nest)
+                'picked-up' : transition(substate='carried')
                 },
             'carried': {
-                '', 'arrive',
+                #'', 'arrive', (Carrying ant)
                 },
             'at-nest' : {
-                '': 'search',
-                'recruit' : 'accept-loc'
+                'search': transition(substate='search'),
+                #'recruit' : 'accept-loc' (?)
                 },
             'lead-forward' : {
-                'at-nest' : ''
+                #'at-nest' : '' (?)
                 }
         },
         'committed' :
