@@ -27,7 +27,7 @@ def main(args):
                 pprint(stateCounts)
                 pprint(nestCounts)
             step += 1
-            if step == 100:
+            if step == 10000:
                 1/0
 
     except KeyboardInterrupt:

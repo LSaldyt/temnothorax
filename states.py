@@ -20,6 +20,9 @@ accept-loc(ant, x):
 #def arrive(states, parameters, ant):
 #pass
 
+def accept(ant):
+
+
 arrive = transition(substate='at-nest')
 
 states = {
@@ -28,8 +31,8 @@ states = {
                 #'follow-leader' : transition(state=''), (Dependent on leaders and their locations)
                 'get-lost' : transition(substate='search')},
             'search': {
-                'picked-up' : transition(substate='carried'),
-                'find-0' : move(0),
+                'picked-up'  : transition(substate='carried'),
+                'find-0'     : move(0),
                 'find-other' : move_random
                 },
             'carried': {
@@ -46,7 +49,8 @@ states = {
                 #'arrive' : '' (Dependent on leaders)
                 },
             'search': {
-                #'find' : 'arrive', (Dependent on nests)
+                'find-0' : move(0),
+                'find-other' : move_random,
                 'picked-up' : transition(substate='carried')
                 },
             'carried': {
@@ -54,12 +58,14 @@ states = {
                 },
             'at-nest': {
                 #'accept' : '', (Dependent on nest)
+                #'accept' : transition(),
                 'search' : transition(substate='search')
                 #'follow-leader' : '' (Dependent on leaders)
                 }},
         'canvassing' : {
             'search': {
-                #'find' : 'arrive', (Dependent on nest)
+                'find-0' : move(0),
+                'find-other' : move_random,
                 'picked-up' : transition(substate='carried')
                 },
             'carried': {
@@ -81,7 +87,8 @@ states = {
                 'invgetlost + getlost*losttrans' : 'transport',
                 },
             'search'         : {
-                'find' : '',
+                'find-0' : move(0),
+                'find-other' : move_random,
                 'picked-up' : ''
                 },
             'carried'        : {
