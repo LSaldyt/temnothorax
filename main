@@ -17,12 +17,15 @@ def main(args):
         while True:
             stateCounts = {state : {substate : 0 for substate in stateDict} 
                            for state, stateDict in states.items()}
+            nestCounts  = [0] * (parameters['__nest_count__'] + 1)
             ants = [update(states, parameters, ant) for ant in ants]
             for ant in ants:
                 stateCounts[ant.state][ant.substate] += 1
+                nestCounts[ant.current] += 1
             if step % 10 == 0:
                 print(step)
                 pprint(stateCounts)
+                pprint(nestCounts)
             step += 1
             if step == 100:
                 1/0

@@ -40,15 +40,22 @@ LostTrans	0.56±0.12	16
 
 #Structure: paramname, three-tuple {p : (mean, sd, n)}
 
-def index_parameter(parameters, p, state):
+process_nest_index = lambda i : 0 if i == 0 else 'other'
+
+def index_parameter(parameters, p, ant):
+    state = ant.state
     if p in parameters:
         return parameters[p]
-    elif state in parameters:
+    elif state in parameters and p in parameters[state]:
         return parameters[state][p]
+    elif 'find' in p:
+        return parameters['__nest_parameters__'][process_nest_index(ant.source)][p]
     else:
         raise KeyError('Parameter not found: {} in state {}'.format(p, state))
 
+
 parameters = {
+        'get-lost' : (0.91, 0.04, 55),
         'exploration' : {
             'search' : (0.51, 0.02, 473),
             'picked-up' : (0.01, 0.001, 110)
@@ -65,13 +72,15 @@ parameters = {
             'search' : (0.06, 0.01, 642),
             'picked-up' : (0.005, 0.001, 45)
             },
+        '__nest_parameters__' : {
+            0 :  {'find-0' : (0.18, 0.1, 484),
+                  'find-other' : (0.01, 0.002, 484)},
+            'other' : {'find-0' : (0.09, 0.002, 2028),
+                       'find-other' : (0.09, 0.002, 2028)}},
+        '__nest_count__' : 2,
 
-'find-0-n'  : (0.01, 0.002, 484),
-'find-0-0'  : (0.18, 0.1, 484),
-'find-n-n'  : (0.09, 0.002, 2028),
-'prop-lost' : (0.91, 0.04, 55),
-'duration-forward' : (7.2, 1.6, 4),
-'duration-reverse' : (4.6, 0.5, 9),
+#'duration-forward' : (7.2, 1.6, 4),
+#'duration-reverse' : (4.6, 0.5, 9),
 'reject-thick-thin' : (1.0, 0.0, 16),
 'reject-thin-thick' : (0.03, 0.03, 37),
 'accept-thick' : (0.053, 0.004, 257),

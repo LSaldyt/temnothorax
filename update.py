@@ -13,7 +13,7 @@ def update(states, parameters, ant):
     probdict = states[ant.state][ant.substate]
     options  = list(probdict.items())
     if len(options):
-        weights      = [index_parameter(parameters, k, ant.state)[0] for k, v in options]
+        weights      = [index_parameter(parameters, k, ant)[0] for k, v in options]
         transitions  = [v for k, v in options]
 
         weights.append(1-sum(weights))

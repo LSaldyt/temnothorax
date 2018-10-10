@@ -1,4 +1,4 @@
-from transition import transition
+from transition import transition, move, move_random
 '''
 i denotes nest that the ant is currently assessing or recruiting to
 f denotes the nest from which the ant recruits
@@ -28,8 +28,9 @@ states = {
                 #'follow-leader' : transition(state=''), (Dependent on leaders and their locations)
                 'get-lost' : transition(substate='search')},
             'search': {
-                'picked-up' : transition(substate='carried')
-                #'find' : '' (Dependent on nest)
+                'picked-up' : transition(substate='carried'),
+                'find-0' : move(0),
+                'find-other' : move_random
                 },
             'carried': {
                 #'arrive' : arrive (Dependent on number of ants in carrying state)
