@@ -6,6 +6,9 @@ from parameters import index_parameter
 def normalize(l):
     return [x/sum(l) for x in l]
 
+def identity(ant):
+    return ant
+
 def update(states, parameters, ant):
     probdict = states[ant.state][ant.substate]
     options  = list(probdict.items())
@@ -13,8 +16,11 @@ def update(states, parameters, ant):
         weights      = [index_parameter(parameters, k, ant.state)[0] for k, v in options]
         transitions  = [v for k, v in options]
 
+        weights.append(1-sum(weights))
+        transitions.append(identity)
+
         transition = random.choices(transitions, weights)[0]
         return transition(ant)
     else:
-        print('Warning: No available transitions for ant {}'.format(ant))
+        #print('Warning: No available transitions for ant {}'.format(ant))
         return ant

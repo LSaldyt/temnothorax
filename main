@@ -9,18 +9,23 @@ from display    import display
 from parameters import parameters
 
 def main(args):
-    N = 1
+    N = 100
     ants = [Ant('exploration', 'at-nest', 0, None, i) for i in range(N)]
 
     step = 0
     try:
         while True:
+            stateCounts = {state : {substate : 0 for substate in stateDict} 
+                           for state, stateDict in states.items()}
             ants = [update(states, parameters, ant) for ant in ants]
-            #display(ants)
-            #print(step)
-            if step % 1000 == 0:
+            for ant in ants:
+                stateCounts[ant.state][ant.substate] += 1
+            if step % 10 == 0:
                 print(step)
+                pprint(stateCounts)
             step += 1
+            if step == 100:
+                1/0
 
     except KeyboardInterrupt:
         print('Ran {} steps'.format(step))
