@@ -4,12 +4,14 @@ from pprint import pprint
 from collections import defaultdict
 
 from ant        import Ant
+from plot       import plot
 from states     import states
 from update     import update
 from display    import display
 from parameters import parameters
 
 def main(args):
+    history = []
     N = 100
     ants = [Ant('exploration', 'at-nest', 0, None, i) for i in range(N)]
     leaders = defaultdict(dict)
@@ -36,17 +38,19 @@ def main(args):
                 stateCounts[ant.state][ant.substate] += 1
                 nestCounts[ant.current] += 1
                 if ant.substate == 'lead-forward':
-                    leaders[ant.current] = 
-            if step % 10 == 0:
-                print(step)
-                pprint(stateCounts)
-                pprint(nestCounts)
+                    leaders[ant.current][ant.i] = ant
+            history.append((stateCounts, nestCounts))
+            ##if step % 10 == 0:
+            #    #pprint(stateCounts)
+            #    #pprint(nestCounts)
             step += 1
             if step == 100:
-                1/0
+                break
 
     except KeyboardInterrupt:
         print('Ran {} steps'.format(step))
+
+    plot(history)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
