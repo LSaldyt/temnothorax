@@ -18,13 +18,13 @@ rho = {
 }
 
 #c = 4.6 # Minutes to move item.. not used
-T = 100 # ?
+T = 8 # ?
 
 def I(Ri, S):
     return Ri if Ri < T and S > 0 else 0
 
 def J(Ri, Pinitial):
-    return 0 if Ri < T or Pinitial == 0 else Ri
+    return 0 if Ri < T or Pinitial <= 0 else Ri
 
 def dS(S, R):
     return (-sum(ui * S for ui in u)
@@ -44,8 +44,7 @@ def dRi(R, A, i):
                   for j in range(len(A)) if j != i))
 
 def dPi(R, Pinitial, i):
-    print('dPi debug:')
-    print(phi[i] * J(R[i], Pinitial))
+    print(Pinitial)
     print(J(R[i], Pinitial))
     return phi[i] * J(R[i], Pinitial)
 
@@ -60,9 +59,11 @@ def simulate():
     P_history = []
     A_history = []
     R_history = []
+    P_origin_history = []
 
     print('Initial Population:')
     print('S: {S}\nA: {A}\nR: {R}\nP: {P}'.format(S=S, A=A, R=R, P=P))
+    print(Pinitial)
     #iterations = 143
     iterations = 1000
     for _ in range(iterations):
@@ -70,17 +71,20 @@ def simulate():
         P_history.append(P)
         A_history.append(A)
         R_history.append(R)
+        P_origin_history.append(Pinitial)
 
         newS = S + dS(S, R)
         newA = [Ai + dAi(S, R, A, i)     for i, Ai in enumerate(A)]
         newR = [Ri + dRi(R, A, i)        for i, Ri in enumerate(R)]
         newP = [Pi + dPi(R, Pinitial, i) for i, Pi in enumerate(P)]
-        S = newS #round(newS)
-        A = newA # list(map(round, newA))
-        R = newR # list(map(round, newR))
-        P = newP # list(map(round, newP))
+        Pinitial -= sum(dPi(R, Pinitial, i) for i, _ in enumerate(P))
+        S = newS
+        A = newA
+        R = newR
+        P = newP
         print('Population:')
         print('S: {S}\nA: {A}\nR: {R}\nP: {P}'.format(S=S, A=A, R=R, P=P))
+        print(Pinitial)
 
     time = list(range(iterations))
     plt.plot(time, [N] * iterations, color='black', alpha=0.5, label='Total ant limit')
@@ -96,6 +100,7 @@ def simulate():
     for i, Ph in enumerate(zip(*P_history)):
         linestyle = ['-', '--'][i]
         plt.plot(time, Ph, color='green', label='Passive {}'.format(i), linestyle=linestyle)
+    plt.plot(time, P_origin_history, color='red', label='Passive original')
     plt.legend()
     plt.xlabel('Minutes')
     plt.ylabel('Population count')
