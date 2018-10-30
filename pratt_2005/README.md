@@ -1,4 +1,4 @@
-# Themnothorax
+# Temnothorax
 
 See the following paper:
 ```
