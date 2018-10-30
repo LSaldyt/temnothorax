@@ -57,7 +57,7 @@ def index_parameter(parameters, p, ant):
 
 nest_parameters = {
         'nests' : {
-            1 : {'depth' : 'thick'}
+            1 : {'depth' : 'thick'},
             2 : {'depth' : 'thin'}
             }
         }

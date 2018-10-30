@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys, time
 from pprint import pprint
+from collections import defaultdict
 
 from ant        import Ant
 from states     import states
@@ -11,6 +12,18 @@ from parameters import parameters
 def main(args):
     N = 100
     ants = [Ant('exploration', 'at-nest', 0, None, i) for i in range(N)]
+    leaders = defaultdict(dict)
+
+    print('Starting ants:')
+    pprint(ants)
+    nestCounts  = [0] * (parameters['__nest_count__'] + 1)
+    stateCounts = {state : {substate : 0 for substate in stateDict} 
+                   for state, stateDict in states.items()}
+    ants = [update(states, parameters, ant) for ant in ants]
+    for ant in ants:
+        stateCounts[ant.state][ant.substate] += 1
+        nestCounts[ant.current] += 1
+    pprint(stateCounts)
 
     step = 0
     try:
@@ -22,12 +35,14 @@ def main(args):
             for ant in ants:
                 stateCounts[ant.state][ant.substate] += 1
                 nestCounts[ant.current] += 1
+                if ant.substate == 'lead-forward':
+                    leaders[ant.current] = 
             if step % 10 == 0:
                 print(step)
                 pprint(stateCounts)
                 pprint(nestCounts)
             step += 1
-            if step == 10000:
+            if step == 100:
                 1/0
 
     except KeyboardInterrupt:

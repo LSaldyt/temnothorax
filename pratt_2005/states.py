@@ -21,14 +21,14 @@ accept-loc(ant, x):
 #pass
 
 def accept(ant):
-
+    pass
 
 arrive = transition(substate='at-nest')
 
 states = {
         'exploration': {
             'follow': {
-                #'follow-leader' : transition(state=''), (Dependent on leaders and their locations)
+                # arrive (Dependent on leader ant)
                 'get-lost' : transition(substate='search')},
             'search': {
                 'picked-up'  : transition(substate='carried'),
@@ -82,14 +82,14 @@ states = {
         'committed' :
         {
             'follow'         : {
-                'search' : '',
+                'search': transition(substate='search'),
                 'getlost-trans' : 'arrive',
                 'invgetlost + getlost*losttrans' : 'transport',
                 },
             'search'         : {
                 'find-0' : move(0),
                 'find-other' : move_random,
-                'picked-up' : ''
+                'picked-up' : transition(substate='carried')
                 },
             'carried'        : {
                 'arrive' : '',
@@ -97,19 +97,19 @@ states = {
                 },
             'at-nest'        : {
                 'follow-leader' : 'follow',
-                'search' : 'search',
-                'recruit' : 'pre-reverse'
+                'search' : transition(substate='search'),
+                'recruit' : transition(substate='pre-reverse')
                 },
             'transport'      : {
-                'stop-trans' : 'search',
-                'invstoptrans' : 'pre-reverse'
+                'stop-trans' : transition(substate='search'),
+                'invstoptrans' : transition(substate='pre-reverse')
                 },
             'reverse-tandem' : {
-                'transport' : ''
+                'transport' : transition(substate='transport')
                 },
             'pre-reverse'    : {
-                '1-reverse' : 'transport',
-                'reverse'  : 'reverse-tandem'
+                '1-reverse' : transition(substate='transport'),
+                'reverse'  : transition(substate='reverse-tandem')
                 }
         }
 }
