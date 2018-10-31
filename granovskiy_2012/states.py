@@ -2,6 +2,8 @@ from collections import namedtuple, defaultdict
 from random import random
 from pprint import pprint
 
+from plot import plot
+
 Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay'])
 
 # Number of nests
@@ -148,17 +150,24 @@ def update(ant):
     return ant
 
 def count_ants(ants):
-    countDict = defaultdict(lambda : 0)
+    countDict = {(state, substate, i, j) : 0
+                 for state, subdict in states.items()
+                 for substate in subdict
+                 for i in range(M) for j in range(M)}
     for ant in ants:
         countDict[(ant.state, ant.substate, ant.current, ant.source)] += 1
-    pprint(dict(countDict))
+    #pprint(dict(countDict))
+    return countDict
 
 #Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay'])
 def main():
     N = 100
+    iterations = 1000
     ants = [Ant('assessment', 'at-nest', 0, 0, i, 0)  for i in range(N)]
-    while True:
+    history = []
+    for _ in range(iterations):
         ants = list(map(update, ants))
-        count_ants(ants)
+        history.append(count_ants(ants))
+    plot(history)
 
 main()
