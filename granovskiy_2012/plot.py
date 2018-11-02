@@ -14,4 +14,7 @@ def plot(history):
     for k, v in combined_state_counts.items():
         plt.plot(time, v, label=k)
     plt.legend()
+    plt.title('Ants at each nest')
+    plt.ylabel('Count of ants')
+    plt.xlabel('Timestep (1/10) minutes each')
     plt.show()

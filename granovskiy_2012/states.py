@@ -4,10 +4,9 @@ from pprint import pprint
 
 from plot import plot
 
-Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay'])
+Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay', 'delay_task'])
 
 # Number of nests
-
 def transition(**kwargs):
     def modify(ant):
         return ant._replace(**kwargs)
@@ -85,7 +84,6 @@ def reverse_tandem(ant):
     return transition(substate='transport')(ant) # TODO: ?????
 
 def travel(ant):
-    # TODO: Delays
     return transition(state='canvassing', substate='at-nest')(ant) # TODO: ?????
 
 # Values are either custom functions or tuples describing probability transitions
@@ -139,6 +137,8 @@ states = {
 }
 
 def update(ant):
+    if ant.delay > 0:
+        ant = ant._replace(delay=ant.delay - 1)
     possibilities = states[ant.state][ant.substate]
     for k, v in possibilities.items():
         if isinstance(v, tuple):
@@ -150,20 +150,22 @@ def update(ant):
     return ant
 
 def count_ants(ants):
-    countDict = {(state, substate, i, j) : 0
-                 for state, subdict in states.items()
-                 for substate in subdict
-                 for i in range(M) for j in range(M)}
+    countDict = {(i,) : 0
+                 for i in range(M)}
+    #countDict = {(state, substate, i, j) : 0
+    #             for state, subdict in states.items()
+    #             for substate in subdict
+    #             for i in range(M) for j in range(M)}
     for ant in ants:
-        countDict[(ant.state, ant.substate, ant.current, ant.source)] += 1
+        countDict[(ant.current,)] += 1
+        #countDict[(ant.state, ant.substate, ant.current, ant.source)] += 1
     #pprint(dict(countDict))
     return countDict
 
-#Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay'])
 def main():
     N = 100
-    iterations = 1000
-    ants = [Ant('assessment', 'at-nest', 0, 0, i, 0)  for i in range(N)]
+    iterations = 5000
+    ants = [Ant('assessment', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
     history = []
     for _ in range(iterations):
         ants = list(map(update, ants))
