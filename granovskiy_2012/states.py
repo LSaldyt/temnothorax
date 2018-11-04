@@ -1,6 +1,7 @@
 from collections import namedtuple, defaultdict
 from random import random
 from pprint import pprint
+from copy import deepcopy
 
 from plot import plot
 
@@ -8,13 +9,14 @@ Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay',
 
 # Number of nests
 def transition(**kwargs):
-    def modify(ant):
+    def modify(ant, stateLookup=None, nestLookup=None):
         return ant._replace(**kwargs)
     return modify
 
 nest_descriptions = {0 : 'destroyed',
                      1 : 'mediocre',
                      2 : 'good'}
+
 M = len(nest_descriptions)
 
 nest_acceptances      = {'good' : 0.0056, 'mediocre' : 0.0023, 'destroyed' : 0.0}
@@ -31,7 +33,7 @@ def get_nest_find_rate(at, to):
     else:
         return 0.001
 
-def find_nest(ant):
+def find_nest(ant, stateLookup, nestLookup):
     # Depending on source and current nest, make probabilistic transition
     at = ant.current
     for i in range(M):
@@ -43,27 +45,27 @@ def find_nest(ant):
             return transition(**change)(ant)
     return ant
 
-def accept_nest(ant):
+def accept_nest(ant, stateLookup, nestLookup):
     p = nest_acceptances[nest_descriptions[ant.current]]
     if random() < p:
         ant = transition(state='committed')(ant)
-        return recruit(ant)
+        return recruit(ant, stateLookup, nestLookup)
     return ant
 
-def quorum_met(nest):
+def quorum_met(nest, stateLookup, nestLookup):
     return False
 
 # Determine probability of recruiting, and then recruit if over it
-def recruit_from(ant):
+def recruit_from(ant, stateLookup, nestLookup):
     p = recruit_probabilities[nest_descriptions[ant.current]]
     if random() < p:
-        return recruit(ant)
+        return recruit(ant, stateLookup, nestLookup)
     return ant
 
 reverse = 0.011
 
-def recruit(ant):
-    if quorum_met(ant.current):
+def recruit(ant, stateLookup, nestLookup):
+    if quorum_met(ant.current, stateLookup, nestLookup):
         if random() < reverse:
             return transition(state='committed', substate='transport')(ant)
         else:
@@ -74,16 +76,16 @@ def recruit(ant):
 
 stoptrans = 0.181
 
-def transport(ant):
+def transport(ant, stateLookup, nestLookup):
     if random() < stoptrans:
         return transition(substate='search')(ant)
     else:
-        return recruit(ant) # TODO: ????
+        return recruit(ant, stateLookup, nestLookup) # TODO: ????
 
-def reverse_tandem(ant):
+def reverse_tandem(ant, stateLookup, nestLookup):
     return transition(substate='transport')(ant) # TODO: ?????
 
-def travel(ant):
+def travel(ant, stateLookup, nestLookup):
     return transition(state='canvassing', substate='at-nest')(ant) # TODO: ?????
 
 # Values are either custom functions or tuples describing probability transitions
@@ -136,40 +138,40 @@ states = {
         }
 }
 
-def update(ant):
-    if ant.delay > 0:
-        ant = ant._replace(delay=ant.delay - 1)
+def update(ant, stateLookup, nestLookup):
+    stateLookup[ant.state][ant.substate].remove(ant.i)
+    nestLookup[ant.current].remove(ant.i)
+    if ant.delay == 1:
+        return ant.delay_task(ant._replace(delay=0))
+    elif ant.delay > 0:
+        return ant._replace(delay=ant.delay - 1)
     possibilities = states[ant.state][ant.substate]
     for k, v in possibilities.items():
         if isinstance(v, tuple):
             probability, transition = v
             if random() < probability:
-                return transition(ant)
+                ant = transition(ant, stateLookup, nestLookup)
+                break
         else:
-            return v(ant)
+            ant = v(ant, stateLookup, nestLookup)
+            break
+    stateLookup[ant.state][ant.substate].add(ant.i)
+    nestLookup[ant.current].add(ant.i)
     return ant
-
-def count_ants(ants):
-    countDict = {(i,) : 0
-                 for i in range(M)}
-    #countDict = {(state, substate, i, j) : 0
-    #             for state, subdict in states.items()
-    #             for substate in subdict
-    #             for i in range(M) for j in range(M)}
-    for ant in ants:
-        countDict[(ant.current,)] += 1
-        #countDict[(ant.state, ant.substate, ant.current, ant.source)] += 1
-    #pprint(dict(countDict))
-    return countDict
 
 def main():
     N = 100
     iterations = 5000
+    stateLookup = defaultdict(lambda : defaultdict(set))
+    nestLookup = {i : set() for i in range(M)}
     ants = [Ant('assessment', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
+    for ant in ants:
+        stateLookup[ant.state][ant.substate].add(ant.i)
+        nestLookup[ant.current].add(ant.i)
     history = []
     for _ in range(iterations):
-        ants = list(map(update, ants))
-        history.append(count_ants(ants))
+        ants = list(map(lambda a : update(a, stateLookup, nestLookup), ants))
+        history.append({k : len(v) for k, v in nestLookup.items()})
     plot(history)
 
 main()
