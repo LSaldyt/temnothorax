@@ -8,7 +8,28 @@ from plot import plot
 
 Ant = namedtuple('Ant', ['state', 'substate', 'current', 'source', 'i', 'delay', 'delay_task'])
 
+def modifies_lookups(f):
+    @wraps(f)
+    def inner(ant, ants, stateLookup, nestLookup):
+        try:
+            stateLookup[ant.state][ant.substate].remove(ant.i)
+        except KeyError:
+            print(ant, ants, stateLookup, nestLookup)
+            print(ant.state)
+            print(ant.substate)
+        try:
+            nestLookup[ant.current].remove(ant.i)
+        except KeyError:
+            print(ant, ants, stateLookup, nestLookup)
+            print(ant.current)
+        ant = f(ant, ants, stateLookup, nestLookup)
+        stateLookup[ant.state][ant.substate].add(ant.i)
+        nestLookup[ant.current].add(ant.i)
+        return ant
+    return inner
+
 def transition(**kwargs):
+    @modifies_lookups
     def modify(ant, ants=None, stateLookup=None, nestLookup=None):
         return ant._replace(**kwargs)
     return modify
@@ -43,13 +64,13 @@ def find_nest(ant, ants, stateLookup, nestLookup):
             change = dict(substate='at-nest', current=i)
             if i == at:
                 change['state'] = 'assessment' # Change to assessment if visiting a novel nest
-            return transition(**change)(ant)
+            return transition(**change)(ant, ants, stateLookup, nestLookup)
     return ant
 
 def accept_nest(ant, ants, stateLookup, nestLookup):
     p = nest_acceptances[nest_descriptions[ant.current]]
     if random() < p:
-        ant = transition(state='committed')(ant)
+        ant = transition(state='committed')(ant, ants, stateLookup, nestLookup)
         return recruit(ant, ants, stateLookup, nestLookup)
     return ant
 
@@ -67,16 +88,6 @@ def recruit_from(ant, ants, stateLookup, nestLookup):
 
 reverse = 0.011
 
-def recruit(ant, ants, stateLookup, nestLookup):
-    if quorum_met(ant.current, ants, stateLookup, nestLookup):
-        if random() < reverse:
-            return transition(state='committed', substate='transport')(ant)
-        else:
-            return transition(state='committed', substate='reverse-tandem')(ant)
-    else:
-        return transition(state='canvassing', substate='forward-tandem')(ant)
-    return ant
-
 stoptrans = 0.181
 
 def select_ant(stateLookup):
@@ -86,26 +97,43 @@ def select_ant(stateLookup):
         possible.update(stateLookup[state][substate])
     return choice(list(possible))
 
+@modifies_lookups
+def recruit(ant, ants, stateLookup, nestLookup):
+    if quorum_met(ant.current, ants, stateLookup, nestLookup):
+        if random() < reverse:
+            return transition(state='committed', substate='transport')(ant, ants, stateLookup, nestLookup)
+        else:
+            return transition(state='committed', substate='reverse-tandem')(ant, ants, stateLookup, nestLookup)
+    else:
+        return transition(state='canvassing', substate='forward-tandem')(ant, ants, stateLookup, nestLookup)
+    return ant
+
+
 transport_delay_time = 10
 
+@modifies_lookups
 def transport(ant, ants, stateLookup, nestLookup):
     if random() < stoptrans:
-        return transition(substate='search')(ant)
+        return transition(substate='search')(ant, ants, stateLookup, nestLookup)
     else:
         peers = list(nestLookup[ant.source])
         if len(peers) != 0:
             selected = choice(peers)
             selectedAnt = ants[selected]
-            delay_task = transition(current=ant.current, source=ant.current)
-            ants[selected] = selectedAnt._replace(state='following', substate='following', delay_task=delay_task)
+            delay_task = transition(state='assessment', substate='at-nest', current=ant.current, source=ant.current)
+            ants[selected] = selectedAnt._replace(state='carried', substate='carried', delay=transport_delay_time, delay_task=delay_task)
             ant = ant._replace(delay=transport_delay_time, delay_task=transition(substate='recruit'))
         return ant
 
+@modifies_lookups
 def reverse_tandem(ant, ants, stateLookup, nestLookup):
     # TODO: Reverse tandem run here
-    # delay_task = transition(substate='transport')(ant) # TODO: ?????
+    # delay_task = transition(substate='transport')(ant, ants, stateLookup, nestLookup) # TODO: ?????
     return ant
 
+tandem_delay_time = 10
+
+@modifies_lookups
 def forward_tandem(ant, ants, stateLookup, nestLookup):
     # TODO: Tandem run here
     peers = list(nestLookup[ant.source])
@@ -116,8 +144,8 @@ def forward_tandem(ant, ants, stateLookup, nestLookup):
         print(len(ants))
         selectedAnt = ants[selected]
         print(selectedAnt)
-        delay_task = transition(current=ant.current, source=ant.current)
-        ants[selected] = selectedAnt._replace(state='following', substate='following', delay_task=delay_task)
+        delay_task = transition(state='assessment', substate='at-nest', current=ant.current, source=ant.current)
+        ants[selected] = selectedAnt._replace(state='following', substate='following', delay=tandem_delay_time, delay_task=delay_task)
         ant = ant._replace(delay=transport_delay_time, delay_task=transition(state='canvassing', substate='at-nest'))
     return ant
 
@@ -167,51 +195,32 @@ states = {
         'reverse-tandem' : {
             'reverse-tandem' : reverse_tandem
             }
-        },
-    'following' : {'following' : {}}
+        }
 }
 
-def ant_transition(f):
-    @wraps(f)
-    def inner(ant, ants, stateLookup, nestLookup):
-        try:
-            stateLookup[ant.state][ant.substate].remove(ant.i)
-        except KeyError:
-            print(ant.state)
-            print(ant.substate)
-            pprint(stateLookup[ant.state][ant.substate])
-            raise
-        nestLookup[ant.current].remove(ant.i)
-        ant = f(ant, ants,stateLookup, nestLookup)
-        stateLookup[ant.state][ant.substate].add(ant.i)
-        nestLookup[ant.current].add(ant.i)
-        return ant
-    return inner
-
-@ant_transition
+#@modifies_lookups
 def update(ant, ants, stateLookup, nestLookup):
     if ant.delay == 1:
         ant = ant._replace(delay=0)
         if ant.delay_task is not None:
-            ant = ant.delay_task(ant)._replace(delay_task=None)
-        return ant
+            ant = ant.delay_task(ant, ants, stateLookup, nestLookup)._replace(delay_task=None)
     elif ant.delay > 0:
-        return ant._replace(delay=ant.delay - 1)
-    try:
-        possibilities = states[ant.state][ant.substate]
-    except KeyError:
-        print(ant.state)
-        print(ant.substate)
-        raise
-    for k, v in possibilities.items():
-        if isinstance(v, tuple):
-            probability, transition = v
-            if random() < probability:
-                ant = transition(ant, ants, stateLookup, nestLookup)
+        ant = ant._replace(delay=ant.delay - 1)
+    else:
+        try:
+            possibilities = states[ant.state][ant.substate]
+        except KeyError:
+            print(ant.state)
+            print(ant.substate)
+        for k, v in possibilities.items():
+            if isinstance(v, tuple):
+                probability, transition = v
+                if random() < probability:
+                    ant = transition(ant, ants, stateLookup, nestLookup)
+                    break
+            else:
+                ant = v(ant, ants, stateLookup, nestLookup)
                 break
-        else:
-            ant = v(ant, ants, stateLookup, nestLookup)
-            break
     return ant
 
 def main():
