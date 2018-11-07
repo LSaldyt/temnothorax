@@ -202,7 +202,8 @@ states = {
             'reverse-tandem' : reverse_tandem
             }
         },
-    'following' : {'following' : {}}
+    'following' : {'following' : {}},
+    'carried' : {'carried' : {}}
 }
 
 #@modifies_lookups
@@ -234,7 +235,6 @@ def update(ant, ants, stateLookup, nestLookup):
 def main():
     N = 100
     iterations = 10000
-    iterations = 500
     stateLookup = defaultdict(lambda : defaultdict(set))
     nestLookup = {i : set() for i in range(M)}
     ants = [Ant('assessment', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]

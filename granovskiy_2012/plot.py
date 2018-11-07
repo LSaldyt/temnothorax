@@ -14,7 +14,11 @@ def plot(history):
     pprint(combined_state_counts)
     time = list(range(len(history)))
     for k, v in combined_state_counts.items():
-        plt.plot(time, v, label=k)
+        try:
+            plt.plot(time, v, label=k)
+        except ValueError:
+            print(k)
+            raise
     plt.legend()
     plt.title('Ants at each nest')
     plt.ylabel('Count of ants')
