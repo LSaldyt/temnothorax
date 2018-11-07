@@ -14,13 +14,13 @@ def modifies_lookups(f):
         try:
             stateLookup[ant.state][ant.substate].remove(ant.i)
         except KeyError:
-            print(ant, ants, stateLookup, nestLookup)
+            #print(ant, ants, stateLookup, nestLookup)
             print(ant.state)
             print(ant.substate)
         try:
             nestLookup[ant.current].remove(ant.i)
         except KeyError:
-            print(ant, ants, stateLookup, nestLookup)
+            #print(ant, ants, stateLookup, nestLookup)
             print(ant.current)
         ant = f(ant, ants, stateLookup, nestLookup)
         stateLookup[ant.state][ant.substate].add(ant.i)
@@ -70,11 +70,11 @@ def find_nest(ant, ants, stateLookup, nestLookup):
 def accept_nest(ant, ants, stateLookup, nestLookup):
     p = nest_acceptances[nest_descriptions[ant.current]]
     if random() < p:
-        ant = transition(state='committed')(ant, ants, stateLookup, nestLookup)
+        ant = transition(state='committed', substate='at-nest')(ant, ants, stateLookup, nestLookup)
         return recruit(ant, ants, stateLookup, nestLookup)
     return ant
 
-T = 8
+T = 20
 
 def quorum_met(nest, ants, stateLookup, nestLookup):
     return len(nestLookup[nest]) > T
@@ -86,24 +86,24 @@ def recruit_from(ant, ants, stateLookup, nestLookup):
         return recruit(ant, ants, stateLookup, nestLookup)
     return ant
 
-reverse = 0.011
-
 stoptrans = 0.181
 
 def select_ant(stateLookup):
     possible = set()
     state    = choice(list(stateLookup.keys()))
-    for substate in ['at-nest', 'search']:
+    for substate in stateLookup[state]:
         possible.update(stateLookup[state][substate])
     return choice(list(possible))
 
+reverse = 0.011
 @modifies_lookups
 def recruit(ant, ants, stateLookup, nestLookup):
     if quorum_met(ant.current, ants, stateLookup, nestLookup):
-        if random() < reverse:
-            return transition(state='committed', substate='transport')(ant, ants, stateLookup, nestLookup)
-        else:
-            return transition(state='committed', substate='reverse-tandem')(ant, ants, stateLookup, nestLookup)
+        # TODO: Reverse tandem
+        #if random() < reverse:
+        #    return transition(state='committed', substate='reverse-tandem')(ant, ants, stateLookup, nestLookup)
+        #else:
+        return transition(state='committed', substate='transport')(ant, ants, stateLookup, nestLookup)
     else:
         return transition(state='canvassing', substate='forward-tandem')(ant, ants, stateLookup, nestLookup)
     return ant
@@ -135,7 +135,6 @@ tandem_delay_time = 10
 
 @modifies_lookups
 def forward_tandem(ant, ants, stateLookup, nestLookup):
-    # TODO: Tandem run here
     peers = list(nestLookup[ant.source])
     if len(peers) != 0:
         selected = choice(peers)
@@ -234,10 +233,10 @@ def update(ant, ants, stateLookup, nestLookup):
 
 def main():
     N = 100
-    iterations = 10000
+    iterations = 60000
     stateLookup = defaultdict(lambda : defaultdict(set))
     nestLookup = {i : set() for i in range(M)}
-    ants = [Ant('assessment', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
+    ants = [Ant('exploration', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
     for ant in ants:
         stateLookup[ant.state][ant.substate].add(ant.i)
         nestLookup[ant.current].add(ant.i)
