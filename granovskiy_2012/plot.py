@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from pprint import pprint
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -10,6 +11,7 @@ def plot(history):
     for state in history:
         for k, v in state.items():
             combined_state_counts[k].append(v)
+    pprint(combined_state_counts)
     time = list(range(len(history)))
     for k, v in combined_state_counts.items():
         plt.plot(time, v, label=k)

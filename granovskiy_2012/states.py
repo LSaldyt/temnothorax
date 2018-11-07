@@ -179,11 +179,17 @@ states = {
             },
         'forward-tandem' : {
             'forward_tandem' : forward_tandem
+            },
+        'recruit' : {
+            'recruit' : recruit
             }
         },
     'committed' : {
         'search' : {
             'find' : find_nest,
+            },
+        'recruit' : {
+            'recruit' : recruit
             },
         'at-nest' : {
             'search-committed' : (0.0044, transition(substate='search')),
@@ -195,7 +201,8 @@ states = {
         'reverse-tandem' : {
             'reverse-tandem' : reverse_tandem
             }
-        }
+        },
+    'following' : {'following' : {}}
 }
 
 #@modifies_lookups
@@ -212,6 +219,7 @@ def update(ant, ants, stateLookup, nestLookup):
         except KeyError:
             print(ant.state)
             print(ant.substate)
+            raise
         for k, v in possibilities.items():
             if isinstance(v, tuple):
                 probability, transition = v
@@ -225,7 +233,8 @@ def update(ant, ants, stateLookup, nestLookup):
 
 def main():
     N = 100
-    iterations = 5000
+    iterations = 10000
+    iterations = 500
     stateLookup = defaultdict(lambda : defaultdict(set))
     nestLookup = {i : set() for i in range(M)}
     ants = [Ant('assessment', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
@@ -233,9 +242,14 @@ def main():
         stateLookup[ant.state][ant.substate].add(ant.i)
         nestLookup[ant.current].add(ant.i)
     history = []
+    taskHistory = []
     for _ in range(iterations):
         ants = list(map(lambda a : update(a, ants, stateLookup, nestLookup), ants))
         history.append({k : len(v) for k, v in nestLookup.items()})
+        taskDict = {k1 + '-' + k2 : len(v2) for k1, v1 in stateLookup.items() for k2, v2 in v1.items()}
+        taskDict.update({k1 + '-' + k2 : 0 for k1, v1 in states.items() for k2 in v1 if (k1 + '-' + k2) not in taskDict})
+        taskHistory.append(taskDict)
     plot(history)
+    plot(taskHistory)
 
 main()
