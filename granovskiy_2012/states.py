@@ -15,13 +15,15 @@ def modifies_lookups(f):
             stateLookup[ant.state][ant.substate].remove(ant.i)
         except KeyError:
             #print(ant, ants, stateLookup, nestLookup)
-            print(ant.state)
-            print(ant.substate)
+            #print(ant.state)
+            #print(ant.substate)
+            pass
         try:
             nestLookup[ant.current].remove(ant.i)
         except KeyError:
             #print(ant, ants, stateLookup, nestLookup)
-            print(ant.current)
+            #print(ant.current)
+            pass
         ant = f(ant, ants, stateLookup, nestLookup)
         stateLookup[ant.state][ant.substate].add(ant.i)
         nestLookup[ant.current].add(ant.i)
@@ -233,10 +235,11 @@ def update(ant, ants, stateLookup, nestLookup):
 
 def main():
     N = 100
-    iterations = 60000
+    iterations = 1000
     stateLookup = defaultdict(lambda : defaultdict(set))
     nestLookup = {i : set() for i in range(M)}
     ants = [Ant('exploration', 'at-nest', 0, 0, i, 0, None)  for i in range(N)]
+    print(ants)
     for ant in ants:
         stateLookup[ant.state][ant.substate].add(ant.i)
         nestLookup[ant.current].add(ant.i)
@@ -245,9 +248,12 @@ def main():
     for _ in range(iterations):
         ants = list(map(lambda a : update(a, ants, stateLookup, nestLookup), ants))
         history.append({k : len(v) for k, v in nestLookup.items()})
-        taskDict = {k1 + '-' + k2 : len(v2) for k1, v1 in stateLookup.items() for k2, v2 in v1.items()}
-        taskDict.update({k1 + '-' + k2 : 0 for k1, v1 in states.items() for k2 in v1 if (k1 + '-' + k2) not in taskDict})
+        taskDict = {k : sum(map(len, v.values())) for k, v in stateLookup.items()}
+        taskDict.update({k : 0 for k in states if k not in taskDict})
+        pprint(taskDict)
         taskHistory.append(taskDict)
+    pprint(history)
+    pprint(taskHistory)
     plot(history)
     plot(taskHistory)
 
