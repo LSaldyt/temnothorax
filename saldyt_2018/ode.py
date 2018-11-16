@@ -23,7 +23,10 @@ lambdas = [0.0, 0.033, 0.033]
 alpha   = [0.0, 0.015, 0.02]
 alpha   = [0.0, 0.015, 1.0]
 tauP    = [0.001, 0.001, 0.001] # 0.99 technically.. artificially lowered
-tauS    = [0.0, 0.0, 0.0]
+tauS    = [0.0, 0.001, 0.001]
+tauL    = [0.0, 0.001, 0.001]
+tauC    = [0.0, 0.001, 0.001]
+tauA    = [0.0, 0.001, 0.001]
 phi     = [0.0, 0.13, 0.13]
 #k   = [0.015, 0.02] # SD 0.006 and 0.008 respectively
 
@@ -50,7 +53,12 @@ def dAi(i):
             - sigmaA[i] * A[i]
             - sigmaL[i] * L[i]
             - sigmaC[i] * C[i]
-            - alpha[i] * A[i])
+            - alpha[i] * A[i]
+            + sum(tauL[i]*min(L[j], C[i])
+                + tauC[i]*min(C[j], C[i])
+                + tauA[i]*min(A[j], C[i])
+                - tauA[j]*min(P[i], C[j])
+                for j in range(M) if j != i))
 
 def Q(i):
     return int(A[i] + L[i] >= T)
@@ -61,6 +69,8 @@ def dLi(i):
            - Q(i)*L[i]
            # Re-add later?
            #+ (1 - Q(i)) * C[i]
+           + sum(- tauL[j]*min(L[i], C[j])
+               for j in range(M) if j != i)
            - sigmaL[i] * L[i])
 
 def dCi(i):
@@ -68,6 +78,8 @@ def dCi(i):
            # Re-add later?
             #- (1 - Q(i)) * C[i]
             + Q(i) * L[i]
+            + sum(- tauC[j]*min(C[i], C[j])
+                for j in range(M) if j != i)
             - sigmaC[i] * C[i])
 
 def dPi(i):
@@ -82,6 +94,7 @@ L_history = []
 P_history = []
 
 iterations = 1000
+iterations = 10000
 for _ in range(iterations):
     S_history.append(S)
     C_history.append(C)
@@ -89,11 +102,11 @@ for _ in range(iterations):
     L_history.append(L)
     P_history.append(P)
 
-    newS = S + dS()
-    newC = [Ci + dCi(i) for i, Ci in enumerate(C)]
-    newA = [Ai + dAi(i) for i, Ai in enumerate(A)]
-    newL = [Li + dLi(i) for i, Li in enumerate(L)]
-    newP = [Pi + dPi(i) for i, Pi in enumerate(P)]
+    newS = max(0, S + dS())
+    newC = [max(0, Ci + dCi(i)) for i, Ci in enumerate(C)]
+    newA = [max(0, Ai + dAi(i)) for i, Ai in enumerate(A)]
+    newL = [max(0, Li + dLi(i)) for i, Li in enumerate(L)]
+    newP = [max(0, Pi + dPi(i)) for i, Pi in enumerate(P)]
     S = newS
     C = newC
     A = newA
