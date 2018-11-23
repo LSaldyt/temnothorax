@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 N = 208  # SD 99
 p = 0.25 # SD 0.1
 M = 3
-T = 5
+T = 10
+final_percentage = 0.95
 
 # From Granivoskiy 2012
 # SearchE = 0.0191
@@ -13,15 +14,14 @@ T = 5
 # SearchC(L) = 0.018
 # SearchC(C) = 0.0044
 
-sigmaA  = [0.0, 0.000195, 0.000195]
-sigmaL  = [0.0, 0.00018,  0.00018]
-sigmaC  = [0.0, 0.000044, 0.000044]
-sigmaA  = [0.0, 0.0, 0.0]
-sigmaL  = [0.0, 0.0, 0.0]
-sigmaC  = [0.0, 0.0, 0.0]
+sigmaA  = [0.0, 0.0195, 0.0195]
+sigmaL  = [0.0, 0.018,  0.018]
+sigmaC  = [0.0, 0.0044, 0.0044]
+sigmaA  = [0.0, 0.0,    0.0]
+sigmaL  = [0.0, 0.0,    0.0]
+sigmaC  = [0.0, 0.0,    0.0]
 lambdas = [0.0, 0.033, 0.033]
 alpha   = [0.0, 0.015, 0.02]
-alpha   = [0.0, 0.015, 1.0]
 #tau    = [0.001, 0.001, 0.001] # 0.99 technically.. artificially lowered
 tau     = 0.001
 phi     = [0.0, 0.13, 0.13]
@@ -79,8 +79,9 @@ A_history = []
 L_history = []
 P_history = []
 
-iterations = 150
-for _ in range(iterations):
+iterations = 200000
+done = False
+for i in range(iterations):
     S_history.append(S)
     C_history.append(C)
     A_history.append(A)
@@ -100,6 +101,13 @@ for _ in range(iterations):
     #print('Population:')
     #print('S: {S}\nA: {A}\nR: {R}\nP: {P}'.format(S=S, A=A, R=R, P=P))
     #print(Pinitial)
+    for nestP in P[1:]:
+        if nestP > final_percentage * N * (1-p):
+            done = True
+    if done:
+        iterations = i + 1
+        break
+print('Performed {} iterations'.format(iterations))
 
 time = list(range(iterations))
 plt.plot(time, [N] * iterations, color='black', alpha=0.5, label='Total ant limit')
