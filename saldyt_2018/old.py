@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 N = 208  # SD 99
 p = 0.25 # SD 0.1
 M = 3
-T = 5
+T = 20
 
 # From Granivoskiy 2012
 # SearchE = 0.0191
@@ -16,15 +16,19 @@ T = 5
 sigmaA  = [0.0, 0.000195, 0.000195]
 sigmaL  = [0.0, 0.00018,  0.00018]
 sigmaC  = [0.0, 0.000044, 0.000044]
-sigmaA  = [0.0, 0.0, 0.0]
-sigmaL  = [0.0, 0.0, 0.0]
-sigmaC  = [0.0, 0.0, 0.0]
+#sigmaA  = [0.0, 0.0, 0.0]
+#sigmaL  = [0.0, 0.0, 0.0]
+#sigmaC  = [0.0, 0.0, 0.0]
 lambdas = [0.0, 0.033, 0.033]
 alpha   = [0.0, 0.015, 0.02]
 alpha   = [0.0, 0.015, 1.0]
-#tau    = [0.001, 0.001, 0.001] # 0.99 technically.. artificially lowered
-tau     = 0.001
+tauP    = [0.001, 0.001, 0.001] # 0.99 technically.. artificially lowered
+tauS    = [0.0, 0.001, 0.001]
+tauL    = [0.0, 0.001, 0.001]
+tauC    = [0.0, 0.001, 0.001]
+tauA    = [0.0, 0.001, 0.001]
 phi     = [0.0, 0.13, 0.13]
+#k   = [0.015, 0.02] # SD 0.006 and 0.008 respectively
 
 S = int(p * N)
 C = [0] * M
@@ -33,44 +37,54 @@ L = [0] * M
 P = [int((1 - p) * N)] + [0] * (M - 1)
 
 def dS():
-    return S * sum(
-        - phi[i]
-        - lambdas[i] * L[i]
-        - tau * C[i]
+    return sum(
+        - phi[i] * S
+        - lambdas[i] * min(L[i], S)
+        - tauS[i]*min(C[i], S)
         + sigmaA[i] * A[i]
         + sigmaL[i] * L[i]
         + sigmaC[i] * C[i]
         for i in range(M))
 
 def dAi(i):
-    return (S * (phi[i]
-            + lambdas[i] * L[i]
-            + tau * C[i]
-            - sigmaA[i] * A[i])
+    return (phi[i] * S
+            + lambdas[i] * min(L[i], S)
+            + tauS[i] * min(C[i], S)
+            - sigmaA[i] * A[i]
+            - sigmaL[i] * L[i]
+            - sigmaC[i] * C[i]
             - alpha[i] * A[i]
-            + sum(+ tau * C[i] * A[j]
-                  + tau * C[i] * L[j]
-                  + tau * C[i] * C[j]
-                  - tau * C[j] * A[i]
+            + sum(tauL[i]*min(L[j], C[i])
+                + tauC[i]*min(C[j], C[i])
+                + tauA[i]*min(A[j], C[i])
+                - tauA[j]*min(P[i], C[j])
                 for j in range(M) if j != i))
 
 def Q(i):
-    return int(A[i] + L[i] + C[i] >= T)
+    return int(A[i] + L[i] >= T)
     #return int(A[i] + L[i] + C[i] + P[i] > T)
 
 def dLi(i):
-    return (alpha[i] * A[i]
+    return ((1 - Q(i)) * alpha[i] * A[i]
            - Q(i)*L[i]
-           - sigmaL[i] * L[i]
-           - sum(tau*C[j]*L[i]
-               for j in range(M) if j != i))
+           # Re-add later?
+           # + (1 - Q(i)) * C[i]
+           + sum(- tauL[j]*min(L[i], C[j])
+               for j in range(M) if j != i)
+           - sigmaL[i] * L[i])
 
 def dCi(i):
-    return (Q(i) * L[i] - sigmaC[i] * C[i] - sum(tau*C[j]*C[i] for j in range(M) if j != i))
+    return (Q(i) * alpha[i] * A[i]
+           # Re-add later?
+           # - (1 - Q(i)) * C[i]
+           + Q(i) * L[i]
+           + sum(- tauC[j]*min(C[i], C[j])
+               for j in range(M) if j != i)
+           - sigmaC[i] * C[i])
 
 def dPi(i):
-    return sum(tau*P[j]*C[i]
-               - tau*P[i]*C[j]
+    return sum(tauP[i]*min(P[j], C[i])
+               - tauP[j]*min(P[i], C[j])
                for j in range(M) if j != i)
 
 S_history = []
@@ -79,7 +93,7 @@ A_history = []
 L_history = []
 P_history = []
 
-iterations = 150
+iterations = 2000
 for _ in range(iterations):
     S_history.append(S)
     C_history.append(C)
