@@ -20,7 +20,7 @@ plt.rcParams.update({
     "savefig.facecolor": "black",
     "savefig.edgecolor": "black"})
 
-def big_ugly_function(alpha, phi, T):
+def big_ugly_function(alpha, phi, T, plot=False):
     # SPratt Parameters from 2002 paper
     N = 208  # SD 99
     p = 0.25 # SD 0.1
@@ -33,11 +33,11 @@ def big_ugly_function(alpha, phi, T):
     # SearchC(L) = 0.018
     # SearchC(C) = 0.0044
 
-    sigmaA  = [0.0, 0.0195, 0.0195]
-    sigmaL  = [0.0, 0.018,  0.018]
+    sigmaA  = [0.0, 0.00195, 0.00195]
+    sigmaL  = [0.0, 0.0018,  0.0018]
     sigmaC  = [0.0, 0.0044, 0.0044]
-    sigmaA  = [0.0, 0.0,    0.0]
-    sigmaL  = [0.0, 0.0,    0.0]
+    #sigmaA  = [0.0, 0.0,    0.0]
+    #sigmaL  = [0.0, 0.0,    0.0]
     sigmaC  = [0.0, 0.0,    0.0]
     lambdas = [0.0, 0.033, 0.033]
     tau     = 0.001
@@ -124,48 +124,55 @@ def big_ugly_function(alpha, phi, T):
             iterations = i + 1
             break
     #print('Performed {} iterations'.format(iterations))
+
+    if plot:
+        time = list(range(iterations))
+        plt.plot(time, [N] * iterations, color='black', alpha=0.5, label='Total ant limit')
+        plt.plot(time, [int(N*p)] * iterations, '--', color='black', alpha=0.5, label='Active ant limit')
+        plt.plot(time, [int(N*(1.0 - p))] * iterations, color='black', alpha=0.5, label='Passive ant limit')
+        plt.plot(time, S_history, label='Searching')
+        def show_pop(history, color, label):
+            for i, H in enumerate(zip(*history)):
+                linestyle = ['-', '--', '-.'][i]
+                plt.plot(time, H, color=color, label=label + ' ' + str(i), linestyle=linestyle)
+        show_pop(A_history, 'red',    'Assessment')
+        show_pop(C_history, 'purple', 'Carrying')
+        show_pop(L_history, 'orange', 'Leading')
+        show_pop(P_history, 'blue',   'Passive')
+        plt.title('Population dynamics during ant decision process', color='white')
+        plt.legend()
+        plt.show()
     return iterations
 
-    #time = list(range(iterations))
-    #plt.plot(time, [N] * iterations, color='black', alpha=0.5, label='Total ant limit')
-    #plt.plot(time, [int(N*p)] * iterations, '--', color='black', alpha=0.5, label='Active ant limit')
-    #plt.plot(time, [int(N*(1.0 - p))] * iterations, color='black', alpha=0.5, label='Passive ant limit')
-    #plt.plot(time, S_history, label='Searching')
-    #def show_pop(history, color, label):
-    #    for i, H in enumerate(zip(*history)):
-    #        linestyle = ['-', '--', '-.'][i]
-    #        plt.plot(time, H, color=color, label=label + ' ' + str(i), linestyle=linestyle)
-    #show_pop(A_history, 'red',    'Assessment')
-    #show_pop(C_history, 'purple', 'Carrying')
-    #show_pop(L_history, 'orange', 'Leading')
-    #show_pop(P_history, 'blue',   'Passive')
-    #plt.legend()
-    #plt.show()
+phi = [0.0, 0.13, 0.13]
 
-if not os.path.isfile('data.pkl'):
-    phi     = [0.0, 0.13, 0.13]
-    data = dict(T=[], alpha=[], iterations=[])
-    for T in range(0, 32, 2):
-        for alpha_i in range(1, 501):
-            beta = 0.05
-            alpha = 0.001 * alpha_i
-            nest_ranks = [0.0, alpha, beta]
-            iterations = big_ugly_function(nest_ranks, phi, T)
-            if iterations == 1000:
-                iterations = 0
-            data['T'].append(T)
-            data['alpha'].append(round(alpha, 4))
-            data['iterations'].append(iterations)
-    with open('data.pkl', 'wb') as outfile:
-        pickle.dump(data, outfile)
+def plot():
+    if not os.path.isfile('data.pkl'):
+        data = dict(T=[], alpha=[], iterations=[])
+        for T in range(0, 32, 2):
+            for alpha_i in range(1, 501):
+                beta = 0.05
+                alpha = 0.001 * alpha_i
+                nest_ranks = [0.0, alpha, beta]
+                iterations = big_ugly_function(nest_ranks, phi, T)
+                if iterations == 1000:
+                    iterations = 0
+                data['T'].append(T)
+                data['alpha'].append(round(alpha, 4))
+                data['iterations'].append(iterations)
+        with open('data.pkl', 'wb') as outfile:
+            pickle.dump(data, outfile)
 
-with open('data.pkl', 'rb') as infile:
-    data = pickle.load(infile)
-    data = pandas.DataFrame(data)
-    data['alpha'] = data['alpha'].apply(lambda x : round(x, 4))
+    with open('data.pkl', 'rb') as infile:
+        data = pickle.load(infile)
+        data = pandas.DataFrame(data)
+        data['alpha'] = data['alpha'].apply(lambda x : round(x, 4))
 
-data = data.pivot_table(values='iterations', index='T', columns=['alpha'])
-sns.heatmap(data, yticklabels=True)
-plt.title('Convergence times for nest quality and threshold', color='white')
-plt.savefig('convergance_times.png')
-plt.show()
+    data = data.pivot_table(values='iterations', index='T', columns=['alpha'])
+    sns.heatmap(data, yticklabels=True)
+    plt.title('Convergence times for nest quality and threshold', color='white')
+    plt.savefig('convergance_times.png')
+    plt.show()
+
+#plot()
+big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)
