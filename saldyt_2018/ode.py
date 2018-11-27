@@ -33,11 +33,11 @@ def big_ugly_function(alpha, phi, T, plot=False):
     # SearchC(L) = 0.018
     # SearchC(C) = 0.0044
 
-    sigmaA  = [0.0, 0.00195, 0.00195]
-    sigmaL  = [0.0, 0.0018,  0.0018]
-    sigmaC  = [0.0, 0.0044, 0.0044]
-    #sigmaA  = [0.0, 0.0,    0.0]
-    #sigmaL  = [0.0, 0.0,    0.0]
+    # sigmaA  = [0.0, 0.0195, 0.0195]
+    # sigmaL  = [0.0, 0.018,  0.018]
+    # sigmaC  = [0.0, 0.044, 0.044]
+    sigmaA  = [0.0, 0.0,    0.0]
+    sigmaL  = [0.0, 0.0,    0.0]
     sigmaC  = [0.0, 0.0,    0.0]
     lambdas = [0.0, 0.033, 0.033]
     tau     = 0.001
@@ -49,37 +49,38 @@ def big_ugly_function(alpha, phi, T, plot=False):
     P = [int((1 - p) * N)] + [0] * (M - 1)
 
     def dS():
-        return S * sum(
+        return (S * sum(
             - phi[i]
             - lambdas[i] * L[i]
             - tau * C[i]
-            + sigmaA[i] * A[i]
-            + sigmaL[i] * L[i]
-            + sigmaC[i] * C[i]
             for i in range(M))
+            + sum(sigmaA[j] * A[j]
+              + sigmaL[j] * L[j]
+              + sigmaC[j] * C[j]
+              for j in range(M)))
 
     def dAi(i):
-        return (S * (phi[i]
+        return ((- sigmaA[i] * A[i]) +
+                (S * (phi[i]
                 + lambdas[i] * L[i]
                 + tau * C[i]
-                - sigmaA[i] * A[i])
                 - alpha[i] * A[i]
                 + sum(+ tau * C[i] * A[j]
                       + tau * C[i] * L[j]
                       + tau * C[i] * C[j]
                       - tau * C[j] * A[i]
-                    for j in range(M) if j != i))
+                    for j in range(M) if j != i))))
 
     def Q(i):
         return int(A[i] + L[i] + C[i] >= T)
         #return int(A[i] + L[i] + C[i] + P[i] > T)
 
     def dLi(i):
-        return (alpha[i] * A[i]
+        return (- sigmaL[i] * L[i] +
+               (alpha[i] * A[i]
                - Q(i)*L[i]
-               - sigmaL[i] * L[i]
                - sum(tau*C[j]*L[i]
-                   for j in range(M) if j != i))
+                   for j in range(M) if j != i)))
 
     def dCi(i):
         return (Q(i) * L[i] - sigmaC[i] * C[i] - sum(tau*C[j]*C[i] for j in range(M) if j != i))
@@ -174,5 +175,5 @@ def plot():
     plt.savefig('convergance_times.png')
     plt.show()
 
-#plot()
-big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)
+plot()
+#big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)
