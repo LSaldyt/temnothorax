@@ -96,7 +96,7 @@ def big_ugly_function(alpha, phi, T, plot=False):
     L_history = []
     P_history = []
 
-    iterations = 1000
+    iterations = 5000
     done = False
     for i in range(iterations):
         S_history.append(S)
@@ -145,36 +145,32 @@ def big_ugly_function(alpha, phi, T, plot=False):
         plt.show()
     return iterations
 
-phi = [0.0, 0.13, 0.13]
-
 def plot():
-    if not os.path.isfile('data.pkl'):
-        data = dict(T=[], alpha=[], iterations=[])
-        for T in range(0, 32, 2):
-            for alpha_i in range(1, 501):
-                beta = 0.05
-                alpha = 0.001 * alpha_i
+    if not os.path.isfile('distances.pkl'):
+        data = dict(T=[], phi=[], iterations=[])
+        for T in range(0, 10, 2):
+            alpha = 0.02
+            beta  = 0.015
+            for phi_i in range(1, 10):
+                phi = [0.0, 0.01, phi_i * 0.01]
                 nest_ranks = [0.0, alpha, beta]
                 iterations = big_ugly_function(nest_ranks, phi, T)
-                if iterations == 1000:
-                    iterations = 0
                 data['T'].append(T)
-                data['alpha'].append(round(alpha, 4))
+                data['phi'].append(round(phi_i * 0.01, 4))
                 data['iterations'].append(iterations)
-        with open('data.pkl', 'wb') as outfile:
+        with open('distances.pkl', 'wb') as outfile:
             pickle.dump(data, outfile)
 
-    with open('data.pkl', 'rb') as infile:
+    with open('distances.pkl', 'rb') as infile:
         data = pickle.load(infile)
         data = pandas.DataFrame(data)
-        data['alpha'] = data['alpha'].apply(lambda x : round(x, 4))
 
-    data = data.pivot_table(values='iterations', index='T', columns=['alpha'])
+    data = data.pivot_table(values='iterations', index='T', columns=['phi'])
     sns.heatmap(data, yticklabels=True)
-    plt.title('Convergence times for nest quality and threshold', color='white')
-    plt.xlabel('Alpha (beta constant at 0.05)')
+    plt.title('Convergence times for distance and threshold', color='white')
+    plt.xlabel('Finding rate for second nest (first constant at 0.01)')
     plt.ylabel('Threshold')
-    plt.savefig('convergance_times.png')
+    plt.savefig('distance_convergance_times.png')
     plt.show()
 
 plot()
