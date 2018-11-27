@@ -33,9 +33,9 @@ def big_ugly_function(alpha, phi, T, plot=False):
     # SearchC(L) = 0.018
     # SearchC(C) = 0.0044
 
-    # sigmaA  = [0.0, 0.0195, 0.0195]
-    # sigmaL  = [0.0, 0.018,  0.018]
-    # sigmaC  = [0.0, 0.044, 0.044]
+    #sigmaA  = [0.0, 0.0195, 0.0195]
+    #sigmaL  = [0.0, 0.018,  0.018]
+    #sigmaC  = [0.0, 0.044, 0.044]
     sigmaA  = [0.0, 0.0,    0.0]
     sigmaL  = [0.0, 0.0,    0.0]
     sigmaC  = [0.0, 0.0,    0.0]
@@ -142,6 +142,7 @@ def big_ugly_function(alpha, phi, T, plot=False):
         show_pop(P_history, 'blue',   'Passive')
         plt.title('Population dynamics during ant decision process', color='white')
         plt.legend()
+        plt.savefig('populations.png')
         plt.show()
     return iterations
 
@@ -177,5 +178,5 @@ def plot():
     plt.savefig('convergance_times.png')
     plt.show()
 
-plot()
-#big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)
+#plot()
+big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)

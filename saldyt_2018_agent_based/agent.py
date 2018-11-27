@@ -5,7 +5,24 @@ from pprint      import pprint
 from functools   import reduce
 from time        import sleep
 
+import seaborn as sns
 import matplotlib.pyplot as plt
+#sns.set_style('darkgrid')
+
+plt.rcParams.update({
+    "lines.color": "white",
+    "patch.edgecolor": "white",
+    "text.color": "black",
+    "axes.facecolor": "white",
+    "axes.edgecolor": "lightgray",
+    "axes.labelcolor": "white",
+    "xtick.color": "white",
+    "ytick.color": "white",
+    "grid.color": "lightgray",
+    "figure.facecolor": "black",
+    "figure.edgecolor": "black",
+    "savefig.facecolor": "black",
+    "savefig.edgecolor": "black"})
 
 class Agent:
     def __init__(self):
@@ -62,7 +79,7 @@ for i in range(iterations):
 
 time = list(range(iterations))
 linestyles = ['-', '--', '-.']
-colors     = ['orange', 'blue', 'green']
+colors     = ['orange', '#1357c4', 'purple']
 for i, H in history.items():
     linestyle = linestyles[i]
     color = colors[i]
@@ -71,4 +88,5 @@ plt.ylabel('Population count')
 plt.xlabel('Timesteps')
 plt.legend()
 plt.title('Ant populations in feedback-loop model')
+plt.savefig('agent_based_population_model.png')
 plt.show()
