@@ -5,20 +5,20 @@ import pickle
 import pandas
 import sys, os
 
-plt.rcParams.update({
-    "lines.color": "white",
-    "patch.edgecolor": "white",
-    "text.color": "black",
-    "axes.facecolor": "white",
-    "axes.edgecolor": "lightgray",
-    "axes.labelcolor": "white",
-    "xtick.color": "white",
-    "ytick.color": "white",
-    "grid.color": "lightgray",
-    "figure.facecolor": "black",
-    "figure.edgecolor": "black",
-    "savefig.facecolor": "black",
-    "savefig.edgecolor": "black"})
+# plt.rcParams.update({
+#     "lines.color": "white",
+#     "patch.edgecolor": "white",
+#     "text.color": "black",
+#     "axes.facecolor": "white",
+#     "axes.edgecolor": "lightgray",
+#     "axes.labelcolor": "white",
+#     "xtick.color": "white",
+#     "ytick.color": "white",
+#     "grid.color": "lightgray",
+#     "figure.facecolor": "black",
+#     "figure.edgecolor": "black",
+#     "savefig.facecolor": "black",
+#     "savefig.edgecolor": "black"})
 
 def big_ugly_function(alpha, phi, T, plot=False):
     # SPratt Parameters from 2002 paper
@@ -175,8 +175,8 @@ def plot():
     plt.title('Convergence times for nest quality and threshold', color='white')
     plt.xlabel('Alpha (beta constant at 0.05)')
     plt.ylabel('Threshold')
-    plt.savefig('convergance_times.png')
+    plt.savefig('convergence_times.png')
     plt.show()
 
-#plot()
-big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)
+plot()
+#big_ugly_function([0.0, 0.015, 0.02], phi, 10, plot=True)

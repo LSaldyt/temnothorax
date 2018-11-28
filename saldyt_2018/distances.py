@@ -5,20 +5,20 @@ import pickle
 import pandas
 import sys, os
 
-plt.rcParams.update({
-    "lines.color": "white",
-    "patch.edgecolor": "white",
-    "text.color": "black",
-    "axes.facecolor": "white",
-    "axes.edgecolor": "lightgray",
-    "axes.labelcolor": "white",
-    "xtick.color": "white",
-    "ytick.color": "white",
-    "grid.color": "lightgray",
-    "figure.facecolor": "black",
-    "figure.edgecolor": "black",
-    "savefig.facecolor": "black",
-    "savefig.edgecolor": "black"})
+# plt.rcParams.update({
+#     "lines.color": "white",
+#     "patch.edgecolor": "white",
+#     "text.color": "black",
+#     "axes.facecolor": "white",
+#     "axes.edgecolor": "lightgray",
+#     "axes.labelcolor": "white",
+#     "xtick.color": "white",
+#     "ytick.color": "white",
+#     "grid.color": "lightgray",
+#     "figure.facecolor": "black",
+#     "figure.edgecolor": "black",
+#     "savefig.facecolor": "black",
+#     "savefig.edgecolor": "black"})
 
 def big_ugly_function(alpha, phi, T, plot=False):
     # SPratt Parameters from 2002 paper
@@ -148,7 +148,7 @@ def big_ugly_function(alpha, phi, T, plot=False):
 def plot():
     if not os.path.isfile('distances.pkl'):
         data = dict(T=[], phi=[], iterations=[])
-        for T in range(0, 10, 2):
+        for T in range(10, 32, 2):
             alpha = 0.02
             beta  = 0.015
             for phi_i in range(1, 10):
@@ -170,7 +170,7 @@ def plot():
     plt.title('Convergence times for distance and threshold', color='white')
     plt.xlabel('Finding rate for second nest (first constant at 0.01)')
     plt.ylabel('Threshold')
-    plt.savefig('distance_convergance_times.png')
+    plt.savefig('distance_convergence_times.png')
     plt.show()
 
 plot()

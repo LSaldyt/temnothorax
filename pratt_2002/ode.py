@@ -105,6 +105,7 @@ def simulate():
     plt.xlabel('Minutes')
     plt.ylabel('Population count')
     plt.title('Population dynamics during nest search for Temnothorax')
+    plt.savefig('population_pratt_2002.png')
     plt.show()
 
 if __name__ == '__main__':

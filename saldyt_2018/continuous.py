@@ -9,20 +9,20 @@ from scipy.integrate import odeint
 
 import numpy as np
 
-plt.rcParams.update({
-    "lines.color": "white",
-    "patch.edgecolor": "white",
-    "text.color": "black",
-    "axes.facecolor": "white",
-    "axes.edgecolor": "lightgray",
-    "axes.labelcolor": "white",
-    "xtick.color": "white",
-    "ytick.color": "white",
-    "grid.color": "lightgray",
-    "figure.facecolor": "black",
-    "figure.edgecolor": "black",
-    "savefig.facecolor": "black",
-    "savefig.edgecolor": "black"})
+# plt.rcParams.update({
+#     "lines.color": "white",
+#     "patch.edgecolor": "white",
+#     "text.color": "black",
+#     "axes.facecolor": "white",
+#     "axes.edgecolor": "lightgray",
+#     "axes.labelcolor": "white",
+#     "xtick.color": "white",
+#     "ytick.color": "white",
+#     "grid.color": "lightgray",
+#     "figure.facecolor": "black",
+#     "figure.edgecolor": "black",
+#     "savefig.facecolor": "black",
+#     "savefig.edgecolor": "black"})
 
 # Populations: [S, A, L, C, P]
 
@@ -40,9 +40,9 @@ final_percentage = 0.95
 
 alpha = [0.0, 0.015, 0.02]
 phi = [0.0, 0.13, 0.13]
-sigmaA  = [0.0, 0.0195, 0.0195]
-sigmaL  = [0.0, 0.018,  0.018]
-sigmaC  = [0.0, 0.044,  0.044]
+#sigmaA  = [0.0, 0.0195, 0.0195]
+#sigmaL  = [0.0, 0.018,  0.018]
+#sigmaC  = [0.0, 0.044,  0.044]
 sigmaA  = [0.0, 0.0,   0.0]
 sigmaL  = [0.0, 0.0,   0.0]
 sigmaC  = [0.0, 0.0,   0.0]
@@ -141,4 +141,5 @@ plt.legend()
 plt.xlabel('Timesteps')
 plt.ylabel('Population count')
 plt.title('Population dynamics during decision process')
+plt.savefig('populations_saldyt_2018.png')
 plt.show()
