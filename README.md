@@ -9,3 +9,9 @@ This repository contains (at time of writing) 5 models:
  - Saldyt 2018, agent-based
 
 The Pratt 2005 model is largely superseded by the Granivoskiy 2012 model.
+
+The following plot shows convergence times based on nest distance:
+![Image](https://github.com/LSaldyt/temnothorax/blob/master/saldyt_2018/distance_convergance_times_t_over_10.png)
+
+The following plot shows convergence times based on nest quality:
+![Image](https://github.com/LSaldyt/temnothorax/blob/master/saldyt_2018/convergance_times.png)
