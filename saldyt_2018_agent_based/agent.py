@@ -7,22 +7,22 @@ from time        import sleep
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-#sns.set_style('darkgrid')
+sns.set_style('darkgrid')
 
-plt.rcParams.update({
-    "lines.color": "white",
-    "patch.edgecolor": "white",
-    "text.color": "black",
-    "axes.facecolor": "white",
-    "axes.edgecolor": "lightgray",
-    "axes.labelcolor": "white",
-    "xtick.color": "white",
-    "ytick.color": "white",
-    "grid.color": "lightgray",
-    "figure.facecolor": "black",
-    "figure.edgecolor": "black",
-    "savefig.facecolor": "black",
-    "savefig.edgecolor": "black"})
+#plt.rcParams.update({
+#    "lines.color": "white",
+#    "patch.edgecolor": "white",
+#    "text.color": "black",
+#    "axes.facecolor": "white",
+#    "axes.edgecolor": "lightgray",
+#    "axes.labelcolor": "white",
+#    "xtick.color": "white",
+#    "ytick.color": "white",
+#    "grid.color": "lightgray",
+#    "figure.facecolor": "black",
+#    "figure.edgecolor": "black",
+#    "savefig.facecolor": "black",
+#    "savefig.edgecolor": "black"})
 
 class Agent:
     def __init__(self):
@@ -58,35 +58,51 @@ def gen_free(agents):
         free[agent.current].add(i)
     return free
 
-N = 208
-weights = [0.0, 0.015, 0.02]
-phi     = [0.0, 0.013, 0.013]
-M = len(weights)
-agents  = [Agent() for i in range(N)]
-free = gen_free(agents)
-
-history = defaultdict(list)
-
-iterations = 500
-for i in range(iterations):
-    agents = list(transform(agents, agent, weights, phi, free) for agent in agents)
+def plot(N, weights, phi):
+    linestyles = ['-', '--', '-.'] * 100
+    colors     = ['orange', '#1357c4', 'purple', 'green']
+    M = len(weights)
+    agents  = [Agent() for i in range(N)]
     free = gen_free(agents)
-    for k in range(M):
-        if k in free:
-            history[k].append(len(free[k]))
-        else:
-            history[k].append(0)
 
-time = list(range(iterations))
-linestyles = ['-', '--', '-.']
-colors     = ['orange', '#1357c4', 'purple']
-for i, H in history.items():
-    linestyle = linestyles[i]
-    color = colors[i]
-    plt.plot(time, H, color=color, label='Nest ' + str(i), linestyle=linestyle)
-plt.ylabel('Population count')
-plt.xlabel('Timesteps')
-plt.legend()
-plt.title('Ant populations in feedback-loop model')
-plt.savefig('agent_based_population_model.png')
-plt.show()
+    history = defaultdict(list)
+
+    iterations = 500
+    for i in range(iterations):
+        agents = list(transform(agents, agent, weights, phi, free) for agent in agents)
+        free = gen_free(agents)
+        for k in range(M):
+            if k in free:
+                history[k].append(len(free[k]))
+            else:
+                history[k].append(0)
+
+    time = list(range(iterations))
+    for i, H in history.items():
+        linestyle = linestyles[i]
+        color = colors[i]
+        plt.plot(time, H, color=color, label='Nest ' + str(i), linestyle=linestyle)
+    plt.ylabel('Population count')
+    plt.xlabel('Timesteps')
+    plt.legend()
+    plt.title('Ant populations in feedback-loop model')
+    plt.savefig('agent_based_population_model.png')
+    plt.show()
+
+#N = 208
+#weights = [0.0, 0.015, 0.02, 0.02]
+#phi     = [0.0, 0.013, 0.013, 0.013]
+#plot(N, weights, phi)
+#N = 208
+#weights = [0.0, 0.015, 0.02]
+#phi     = [0.0, 0.013, 0.013]
+#plot(N, weights, phi)
+N = 208
+weights = [0.0, 0.015, 0.02, 0.03]
+phi     = [0.0, 0.013, 0.013, 0.013]
+plot(N, weights, phi)
+N = 208
+weights = [0.0, 0.015, 0.02, 0.05]
+phi     = [0.0, 0.013, 0.013, 0.001]
+plot(N, weights, phi)
+
