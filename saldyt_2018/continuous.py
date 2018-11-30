@@ -40,12 +40,12 @@ final_percentage = 0.95
 
 alpha = [0.0, 0.015, 0.02]
 phi = [0.0, 0.13, 0.13]
-#sigmaA  = [0.0, 0.0195, 0.0195]
-#sigmaL  = [0.0, 0.018,  0.018]
-#sigmaC  = [0.0, 0.044,  0.044]
-sigmaA  = [0.0, 0.0,   0.0]
-sigmaL  = [0.0, 0.0,   0.0]
-sigmaC  = [0.0, 0.0,   0.0]
+sigmaA  = [0.0, 0.0195, 0.0195]
+sigmaL  = [0.0, 0.018,  0.018]
+sigmaC  = [0.0, 0.044,  0.044]
+#sigmaA  = [0.0, 0.0,   0.0]
+#sigmaL  = [0.0, 0.0,   0.0]
+#sigmaC  = [0.0, 0.0,   0.0]
 lambdas = [0.0, 0.033, 0.033]
 tau     = 0.001
 
@@ -125,7 +125,7 @@ Population0 = pack(S=N*p,
                    C=[0, 0, 0],
                    P=[N*(1-p), 0, 0])
 
-N = 400
+N = 1000
 intersteps = 10
 ts = np.linspace(0, N, N * intersteps)
 Ps = odeint(dPopulation_dt, Population0, ts)
@@ -136,8 +136,14 @@ for i in range(1 + M * 4):
         label = ['Assessing', 'Leading', 'Carrying', 'Passive'][(i - 1) // M]
         label += '_' + str((i - 1) % M)
     pop = Ps[:,i]
-    plt.plot(ts, pop, label=label)
-plt.legend()
+    if 'Passive' in label or (i - 1) % 3 != 0:
+        plt.plot(ts, pop, label=label)
+
+# Put a legend to the right of the current axis
+plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
+#plt.legend(bbox_to_anchor=(1.1, 1.05))
+#plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+#          ncol=5, fancybox=True, shadow=False)
 plt.xlabel('Timesteps')
 plt.ylabel('Population count')
 plt.title('Population dynamics during decision process')

@@ -5,6 +5,8 @@ from pprint      import pprint
 from functools   import reduce
 from time        import sleep
 
+import pandas
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 sns.set_style('darkgrid')
@@ -58,7 +60,7 @@ def gen_free(agents):
         free[agent.current].add(i)
     return free
 
-def plot(N, weights, phi):
+def simulate(N, weights, phi, plot=False):
     linestyles = ['-', '--', '-.'] * 100
     colors     = ['orange', '#1357c4', 'purple', 'green']
     M = len(weights)
@@ -67,42 +69,78 @@ def plot(N, weights, phi):
 
     history = defaultdict(list)
 
+    done = False
     iterations = 500
     for i in range(iterations):
+        if done:
+            iterations = i
+            break
         agents = list(transform(agents, agent, weights, phi, free) for agent in agents)
         free = gen_free(agents)
         for k in range(M):
+            if k != 0 and len(free[k]) > .9 * N:
+                done = True
             if k in free:
                 history[k].append(len(free[k]))
             else:
                 history[k].append(0)
 
-    time = list(range(iterations))
-    for i, H in history.items():
-        linestyle = linestyles[i]
-        color = colors[i]
-        plt.plot(time, H, color=color, label='Nest ' + str(i), linestyle=linestyle)
-    plt.ylabel('Population count')
-    plt.xlabel('Timesteps')
-    plt.legend()
-    plt.title('Ant populations in feedback-loop model')
-    plt.savefig('agent_based_population_model.png')
-    plt.show()
+    if plot:
+        time = list(range(iterations))
+        for i, H in history.items():
+            linestyle = linestyles[i]
+            color = colors[i]
+            plt.plot(time, H, color=color, label='Nest ' + str(i), linestyle=linestyle)
+        plt.ylabel('Population count')
+        plt.xlabel('Timesteps')
+        plt.legend()
+        plt.title('Ant populations in feedback-loop model')
+        plt.savefig('agent_based_population_model.png')
+        plt.show()
+    return iterations
 
-#N = 208
-#weights = [0.0, 0.015, 0.02, 0.02]
-#phi     = [0.0, 0.013, 0.013, 0.013]
-#plot(N, weights, phi)
-#N = 208
-#weights = [0.0, 0.015, 0.02]
-#phi     = [0.0, 0.013, 0.013]
-#plot(N, weights, phi)
-N = 208
-weights = [0.0, 0.015, 0.02, 0.03]
-phi     = [0.0, 0.013, 0.013, 0.013]
-plot(N, weights, phi)
-N = 208
-weights = [0.0, 0.015, 0.02, 0.05]
-phi     = [0.0, 0.013, 0.013, 0.001]
-plot(N, weights, phi)
+data = defaultdict(list)
 
+Ns = [208]
+#alphas = np.linspace(0.0, 0.1, 50)
+#alphas = np.linspace(0.0, 1.0, 50)
+#alphas = np.linspace(0.0, 1.0, 10)
+alphas = [0.015]
+#betas  = alphas
+betas  = [0.02]
+phis   = [0.013]
+phis   = np.linspace(0.0, 0.1, 51)
+
+simulate(208, [0.0, 0.015, 0.02], [0.0, 0.013, 0.013], True)
+# for N in Ns:
+#     for alpha in alphas:
+#         for beta in betas:
+#             for phi_a in phis:
+#                 for phi_b in phis:
+#                     add = lambda k, v : data[k].append(round(v, 4))
+#                     data['N'].append(N)
+#                     add('alpha', alpha)
+#                     add('beta', beta)
+#                     add('phi_a', phi_a)
+#                     add('phi_b', phi_b)
+#                     weights = [0.0, alpha, beta]
+#                     phi     = [0.0, phi_a, phi_b]
+#                     data['iterations'].append(simulate(N, weights, phi))
+#
+# #print(data)
+# original_data = pandas.DataFrame(data)
+# print(original_data)
+# #data = original_data.pivot_table(values='iterations', index='beta', columns=['alpha'])
+# #sns.heatmap(data, yticklabels=True, xticklabels=True)
+# #plt.title('Convergence times for nest quality and threshold')
+# #plt.xlabel('Alpha')
+# #plt.ylabel('Beta')
+# #plt.savefig('agent_convergence_times.png')
+# #plt.show()
+# data = original_data.pivot_table(values='iterations', index='phi_b', columns=['phi_a'])
+# sns.heatmap(data)#, yticklabels=True)
+# plt.title('Convergence times for nest quality and threshold')
+# plt.xlabel('Phi_a')
+# plt.ylabel('Phi_b')
+# plt.savefig('distance_agent_convergence_times.png')
+# plt.show()
