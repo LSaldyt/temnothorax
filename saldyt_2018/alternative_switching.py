@@ -77,7 +77,7 @@ def I(Ri, S):
 def dS(Population):
     S, A, L, C, P = unpack(Population, M)
     return (-sum(phi[i] * S + lambdas[i] * I(L[i], S)
-                 #- tau * C[i]
+                 - tau * C[i] * S
                  for i in range(M)))
 
 def dAi(Population, i):
@@ -85,13 +85,11 @@ def dAi(Population, i):
     return (phi[i] * S
             + lambdas[i] * I(L[i], S)
 
-            + sum(#(rho[(j, i)]*A[j] - rho[(i, j)]*A[i])
-                  tau * (C[i] * (#S +
+            + sum(tau * (C[i] * (S +
                                  L[j] +
                                  C[j] +
                                  A[j])
                        - C[j] * A[i])
-                  #tau * (C[i] * A[j] - C[j] * A[i])
                   for j in range(len(A)) if j != i)
             - alpha[i]*A[i]
             )
@@ -109,7 +107,6 @@ def dCi(Population, i):
     return (Q(Population, i) * L[i] #- sigmaC[i] * C[i] -
                - sum(tau*C[j]*C[i] for j in range(M) if j != i)
                )
-               #+ sum( (rho[(j, i)]*C[j] -  rho[(i, j)]*C[i]) for j in range(M) if j != i))
 
 def dPi(Population, i):
     S, A, L, C, P = unpack(Population, M)
