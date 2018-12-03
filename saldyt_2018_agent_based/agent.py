@@ -45,7 +45,6 @@ def transform(agents, agent, weights, phi, free):
     if random() < agent.commitment:
         options = list(reduce(set.union, (s for k, s in free.items() if k != agent.current), set()))
         if options:
-            # Recruit
             recruited = agents[choice(options)]
             recruited.encounter(agent.current, weights)
     else:
@@ -111,7 +110,8 @@ phis   = [0.013]
 phis   = np.linspace(0.0, 0.1, 51)
 
 #simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
-simulate(5000, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
+#simulate(1000, [0.0, 0.015, 0.015, 0.015], [0.0, 0.013, 0.013, 0.013], True, iterations=1000)
+simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
 # for N in Ns:
 #     for alpha in alphas:
 #         for beta in betas:
