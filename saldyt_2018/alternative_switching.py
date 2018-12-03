@@ -71,19 +71,16 @@ def Q(Population, i):
     return int(A[i] + L[i] + C[i] >= T)
     #return int(A[i] + L[i] + C[i] + P[i] > T)
 
-def I(Ri, S):
-    return Ri if Ri < T and S > 0 else 0
-
 def dS(Population):
     S, A, L, C, P = unpack(Population, M)
-    return (-sum(phi[i] * S + lambdas[i] * I(L[i], S)
+    return (-sum(phi[i] * S + lambdas[i] * L[i] * S
                  - tau * C[i] * S
                  for i in range(M)))
 
 def dAi(Population, i):
     S, A, L, C, P = unpack(Population, M)
     return (phi[i] * S
-            + lambdas[i] * I(L[i], S)
+            + lambdas[i] * L[i] * S
 
             + sum(tau * (C[i] * (S +
                                  L[j] +
