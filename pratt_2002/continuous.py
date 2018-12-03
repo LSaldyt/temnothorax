@@ -69,9 +69,6 @@ def pack(S=0, A=[], R=[], P=[]):
 def I(Ri, S):
     return Ri if Ri < T and S > 0 else 0
 
-def J(Ri):
-    return 0 if Ri < T else Ri
-
 def dS(Population):
     S, A, R, P = unpack(Population, M)
     return (-sum(phi[i] * S + lambdas[i] * I(R[i], S)
@@ -94,10 +91,9 @@ def dRi(Population, i):
 
 def dPi(Population, i):
     S, A, R, P = unpack(Population, M)
-    return sum(tau*J(R[i])
-               - tau*J(R[j])
+    return sum(tau*P[j]*R[i]
+               - tau*P[i]*R[j]
                for j in range(M) if j != i)
-
 
 def dPopulation_dt(Population, t):
     result =  [ dS(Population)]
