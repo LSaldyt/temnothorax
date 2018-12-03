@@ -60,7 +60,7 @@ def gen_free(agents):
         free[agent.current].add(i)
     return free
 
-def simulate(N, weights, phi, plot=False):
+def simulate(N, weights, phi, plot=False, iterations=500):
     linestyles = ['-', '--', '-.'] * 100
     colors     = ['orange', '#1357c4', 'purple', 'green']
     M = len(weights)
@@ -70,7 +70,6 @@ def simulate(N, weights, phi, plot=False):
     history = defaultdict(list)
 
     done = False
-    iterations = 500
     for i in range(iterations):
         if done:
             iterations = i
@@ -111,7 +110,8 @@ betas  = [0.02]
 phis   = [0.013]
 phis   = np.linspace(0.0, 0.1, 51)
 
-simulate(208, [0.0, 0.015, 0.02], [0.0, 0.013, 0.013], True)
+#simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
+simulate(5000, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
 # for N in Ns:
 #     for alpha in alphas:
 #         for beta in betas:
