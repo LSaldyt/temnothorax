@@ -128,19 +128,25 @@ N = 1000
 intersteps = 10
 ts = np.linspace(0, N, N * intersteps)
 Ps = odeint(dPopulation_dt, Population0, ts)
-for i in range(1 + M * 4):
-    if i == 0:
-        label = 'Searching'
-    else:
-        label = ['Assessing', 'Leading', 'Carrying', 'Passive'][(i - 1) // M]
-        label += '_' + str((i - 1) % M)
-    pop = Ps[:,i]
-    plt.plot(ts, pop, label=label)
+for do_passive in [True, False]:
+    for i in range(1 + M * 3):
+        if i == 0:
+            label = 'Searching'
+        else:
+            label = ['Assessing', 'Recruiting', 'Passive'][(i - 1) // M]
+            label += '_' + str((i - 1) % M)
+        pop = Ps[:,i]
+        if do_passive:
+            if 'Passive' in label:
+                plt.plot(ts, pop, label=label)
+        else:
+            if 'Passive' not in label:
+                plt.plot(ts, pop, label=label)
 
-# Put a legend to the right of the current axis
-plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
-plt.xlabel('Timesteps')
-plt.ylabel('Population count')
-plt.title('Population dynamics during decision process')
-plt.savefig('populations_saldyt_2018.png')
-plt.show()
+    plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
+    plt.xlabel('Timesteps')
+    plt.ylabel('Population count')
+    plt.title('Population dynamics during decision process')
+    filename = ('passive' if do_passive else 'active') + '_populations_saldyt_2018.png'
+    plt.savefig(filename)
+    plt.show()

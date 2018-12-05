@@ -1,11 +1,36 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pickle
+import pandas
+import sys, os
 
-# SPratt Parameters from 2002 paper
+from scipy.integrate import odeint
+
+import numpy as np
+
+# plt.rcParams.update({
+#     "lines.color": "white",
+#     "patch.edgecolor": "white",
+#     "text.color": "black",
+#     "axes.facecolor": "white",
+#     "axes.edgecolor": "lightgray",
+#     "axes.labelcolor": "white",
+#     "xtick.color": "white",
+#     "ytick.color": "white",
+#     "grid.color": "lightgray",
+#     "figure.facecolor": "black",
+#     "figure.edgecolor": "black",
+#     "savefig.facecolor": "black",
+#     "savefig.edgecolor": "black"})
+
+# Populations: [S, A, L, C, P]
+
+T = 20
+M = 3
 N = 208  # SD 99
 p = 0.25 # SD 0.1
-M = 3
-T = 20
+final_percentage = 0.95
 
 # From Granivoskiy 2012
 # SearchE = 0.0191
@@ -13,121 +38,114 @@ T = 20
 # SearchC(L) = 0.018
 # SearchC(C) = 0.0044
 
-sigmaA  = [0.0, 0.000195, 0.000195]
-sigmaL  = [0.0, 0.00018,  0.00018]
-sigmaC  = [0.0, 0.000044, 0.000044]
-#sigmaA  = [0.0, 0.0, 0.0]
-#sigmaL  = [0.0, 0.0, 0.0]
-#sigmaC  = [0.0, 0.0, 0.0]
+alpha = [0.0, 0.015, 0.02]
+phi = [0.0, 0.13, 0.13]
+sigmaA  = [0.0, 0.0195, 0.0195]
+sigmaL  = [0.0, 0.018,  0.018]
+sigmaC  = [0.0, 0.044,  0.044]
+#sigmaA  = [0.0, 0.0,   0.0]
+#sigmaL  = [0.0, 0.0,   0.0]
+#sigmaC  = [0.0, 0.0,   0.0]
 lambdas = [0.0, 0.033, 0.033]
-alpha   = [0.0, 0.015, 0.02]
-alpha   = [0.0, 0.015, 1.0]
-tauP    = [0.001, 0.001, 0.001] # 0.99 technically.. artificially lowered
-tauS    = [0.0, 0.001, 0.001]
-tauL    = [0.0, 0.001, 0.001]
-tauC    = [0.0, 0.001, 0.001]
-tauA    = [0.0, 0.001, 0.001]
-phi     = [0.0, 0.13, 0.13]
-#k   = [0.015, 0.02] # SD 0.006 and 0.008 respectively
+tau     = 0.001
 
-S = int(p * N)
-C = [0] * M
-A = [0] * M
-L = [0] * M
-P = [int((1 - p) * N)] + [0] * (M - 1)
+def unpack(Populations, nestCount):
+    S, *rest = Populations
+    unpacked = [S, []]
+    for i, item in enumerate(rest):
+        if i > 0 and i % nestCount == 0:
+            unpacked.append([])
+        unpacked[-1].append(item)
+    return unpacked
 
-def dS():
-    return sum(
-        - phi[i] * S
-        - lambdas[i] * min(L[i], S)
-        - tauS[i]*min(C[i], S)
-        + sigmaA[i] * A[i]
-        + sigmaL[i] * L[i]
-        + sigmaC[i] * C[i]
+def pack(S=0, A=[], L=[], C=[], P=[]):
+    return [S, *A, *L, *C, *P]
+
+def dS(Population):
+    S, A, L, C, P = unpack(Population, M)
+    return (S * sum(
+        - phi[i]
+        - lambdas[i] * L[i]
+        - tau * C[i]
         for i in range(M))
+        + sum(sigmaA[j] * A[j]
+          + sigmaL[j] * L[j]
+          + sigmaC[j] * C[j]
+          for j in range(M)))
 
-def dAi(i):
-    return (phi[i] * S
-            + lambdas[i] * min(L[i], S)
-            + tauS[i] * min(C[i], S)
-            - sigmaA[i] * A[i]
-            - sigmaL[i] * L[i]
-            - sigmaC[i] * C[i]
+def dAi(Population, i):
+    S, A, L, C, P = unpack(Population, M)
+    return ((- sigmaA[i] * A[i]) +
+            (S * (phi[i]
+            + lambdas[i] * L[i]
+            + tau * C[i]
             - alpha[i] * A[i]
-            + sum(tauL[i]*min(L[j], C[i])
-                + tauC[i]*min(C[j], C[i])
-                + tauA[i]*min(A[j], C[i])
-                - tauA[j]*min(P[i], C[j])
-                for j in range(M) if j != i))
+            + sum(+ tau * C[i] * A[j]
+                  + tau * C[i] * L[j]
+                  + tau * C[i] * C[j]
+                  - tau * C[j] * A[i]
+                for j in range(M) if j != i))))
 
-def Q(i):
-    return int(A[i] + L[i] >= T)
+def dLi(Population, i):
+    S, A, L, C, P = unpack(Population, M)
+    return (- sigmaL[i] * L[i] +
+           (alpha[i] * A[i]
+           - Q(Population, i)*L[i]
+           - sum(tau*C[j]*L[i]
+               for j in range(M) if j != i)))
+
+def dCi(Population, i):
+    S, A, L, C, P = unpack(Population, M)
+    return (Q(Population, i) * L[i] - sigmaC[i] * C[i] - sum(tau*C[j]*C[i] for j in range(M) if j != i))
+
+
+def Q(Population, i):
+    S, A, L, C, P = unpack(Population, M)
+    return int(A[i] + L[i] + C[i] >= T)
     #return int(A[i] + L[i] + C[i] + P[i] > T)
 
-def dLi(i):
-    return ((1 - Q(i)) * alpha[i] * A[i]
-           - Q(i)*L[i]
-           # Re-add later?
-           # + (1 - Q(i)) * C[i]
-           + sum(- tauL[j]*min(L[i], C[j])
-               for j in range(M) if j != i)
-           - sigmaL[i] * L[i])
-
-def dCi(i):
-    return (Q(i) * alpha[i] * A[i]
-           # Re-add later?
-           # - (1 - Q(i)) * C[i]
-           + Q(i) * L[i]
-           + sum(- tauC[j]*min(C[i], C[j])
-               for j in range(M) if j != i)
-           - sigmaC[i] * C[i])
-
-def dPi(i):
-    return sum(tauP[i]*min(P[j], C[i])
-               - tauP[j]*min(P[i], C[j])
+def dPi(Population, i):
+    S, A, L, C, P = unpack(Population, M)
+    return sum(tau*P[j]*C[i]
+               - tau*P[i]*C[j]
                for j in range(M) if j != i)
 
-S_history = []
-C_history = []
-A_history = []
-L_history = []
-P_history = []
 
-iterations = 2000
-for _ in range(iterations):
-    S_history.append(S)
-    C_history.append(C)
-    A_history.append(A)
-    L_history.append(L)
-    P_history.append(P)
+def dPopulation_dt(Population, t):
+    result =  [ dS(Population)]
+    result += [dAi(Population, i) for i in range(M)]
+    result += [dLi(Population, i) for i in range(M)]
+    result += [dCi(Population, i) for i in range(M)]
+    result += [dPi(Population, i) for i in range(M)]
+    return result
 
-    newS = max(0, S + dS())
-    newC = [max(0, Ci + dCi(i)) for i, Ci in enumerate(C)]
-    newA = [max(0, Ai + dAi(i)) for i, Ai in enumerate(A)]
-    newL = [max(0, Li + dLi(i)) for i, Li in enumerate(L)]
-    newP = [max(0, Pi + dPi(i)) for i, Pi in enumerate(P)]
-    S = newS
-    C = newC
-    A = newA
-    L = newL
-    P = newP
-    #print('Population:')
-    #print('S: {S}\nA: {A}\nR: {R}\nP: {P}'.format(S=S, A=A, R=R, P=P))
-    #print(Pinitial)
+Population0 = pack(S=N*p,
+                   A=[0, 0, 0],
+                   L=[0, 0, 0],
+                   C=[0, 0, 0],
+                   P=[N*(1-p), 0, 0])
 
-time = list(range(iterations))
-plt.plot(time, [N] * iterations, color='black', alpha=0.5, label='Total ant limit')
-plt.plot(time, [int(N*p)] * iterations, '--', color='black', alpha=0.5, label='Active ant limit')
-plt.plot(time, [int(N*(1.0 - p))] * iterations, color='black', alpha=0.5, label='Passive ant limit')
-plt.plot(time, S_history, label='Searching')
-def show_pop(history, color, label):
-    for i, H in enumerate(zip(*history)):
-        linestyle = ['-', '--', '-.'][i]
-        plt.plot(time, H, color=color, label=label + ' ' + str(i), linestyle=linestyle)
-show_pop(A_history, 'red',    'Assessment')
-show_pop(C_history, 'purple', 'Carrying')
-show_pop(L_history, 'orange', 'Leading')
-show_pop(P_history, 'blue',   'Passive')
-plt.legend()
+N = 1000
+intersteps = 10
+ts = np.linspace(0, N, N * intersteps)
+Ps = odeint(dPopulation_dt, Population0, ts)
+for i in range(1 + M * 4):
+    if i == 0:
+        label = 'Searching'
+    else:
+        label = ['Assessing', 'Leading', 'Carrying', 'Passive'][(i - 1) // M]
+        label += '_' + str((i - 1) % M)
+    pop = Ps[:,i]
+    if 'Passive' in label or (i - 1) % 3 != 0:
+        plt.plot(ts, pop, label=label)
+
+# Put a legend to the right of the current axis
+plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
+#plt.legend(bbox_to_anchor=(1.1, 1.05))
+#plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+#          ncol=5, fancybox=True, shadow=False)
+plt.xlabel('Timesteps')
+plt.ylabel('Population count')
+plt.title('Population dynamics during decision process')
+plt.savefig('populations_saldyt_2018.png')
 plt.show()
-
