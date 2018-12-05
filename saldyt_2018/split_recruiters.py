@@ -129,11 +129,11 @@ intersteps = 10
 ts = np.linspace(0, N, N * intersteps)
 Ps = odeint(dPopulation_dt, Population0, ts)
 for do_passive in [True, False]:
-    for i in range(1 + M * 3):
+    for i in range(1 + M * 4):
         if i == 0:
             label = 'Searching'
         else:
-            label = ['Assessing', 'Recruiting', 'Passive'][(i - 1) // M]
+            label = ['Assessing', 'Leading', 'Carrying', 'Passive'][(i - 1) // M]
             label += '_' + str((i - 1) % M)
         pop = Ps[:,i]
         if do_passive:
