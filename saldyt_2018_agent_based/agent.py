@@ -107,40 +107,40 @@ alphas = [0.015]
 #betas  = alphas
 betas  = [0.02]
 phis   = [0.013]
-phis   = np.linspace(0.0, 0.1, 51)
+phis   = np.linspace(0.0, 0.1, 31)
 
 #simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
 #simulate(1000, [0.0, 0.015, 0.015, 0.015], [0.0, 0.013, 0.013, 0.013], True, iterations=1000)
-simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
-# for N in Ns:
-#     for alpha in alphas:
-#         for beta in betas:
-#             for phi_a in phis:
-#                 for phi_b in phis:
-#                     add = lambda k, v : data[k].append(round(v, 4))
-#                     data['N'].append(N)
-#                     add('alpha', alpha)
-#                     add('beta', beta)
-#                     add('phi_a', phi_a)
-#                     add('phi_b', phi_b)
-#                     weights = [0.0, alpha, beta]
-#                     phi     = [0.0, phi_a, phi_b]
-#                     data['iterations'].append(simulate(N, weights, phi))
-#
-# #print(data)
-# original_data = pandas.DataFrame(data)
-# print(original_data)
-# #data = original_data.pivot_table(values='iterations', index='beta', columns=['alpha'])
-# #sns.heatmap(data, yticklabels=True, xticklabels=True)
-# #plt.title('Convergence times for nest quality and threshold')
-# #plt.xlabel('Alpha')
-# #plt.ylabel('Beta')
-# #plt.savefig('agent_convergence_times.png')
-# #plt.show()
-# data = original_data.pivot_table(values='iterations', index='phi_b', columns=['phi_a'])
-# sns.heatmap(data)#, yticklabels=True)
-# plt.title('Convergence times for nest quality and threshold')
-# plt.xlabel('Phi_a')
-# plt.ylabel('Phi_b')
-# plt.savefig('distance_agent_convergence_times.png')
-# plt.show()
+#simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
+for N in Ns:
+    for alpha in alphas:
+        for beta in betas:
+            for phi_a in phis:
+                for phi_b in phis:
+                    add = lambda k, v : data[k].append(round(v, 4))
+                    data['N'].append(N)
+                    add('alpha', alpha)
+                    add('beta', beta)
+                    add('phi_a', phi_a)
+                    add('phi_b', phi_b)
+                    weights = [0.0, alpha, beta]
+                    phi     = [0.0, phi_a, phi_b]
+                    data['iterations'].append(simulate(N, weights, phi, iterations=1000))
+
+#print(data)
+original_data = pandas.DataFrame(data)
+print(original_data)
+#data = original_data.pivot_table(values='iterations', index='beta', columns=['alpha'])
+#sns.heatmap(data, yticklabels=True, xticklabels=True)
+#plt.title('Convergence times for nest quality and threshold')
+#plt.xlabel('Alpha')
+#plt.ylabel('Beta')
+#plt.savefig('agent_convergence_times.png')
+#plt.show()
+data = original_data.pivot_table(values='iterations', index='phi_b', columns=['phi_a'])
+sns.heatmap(data)#, yticklabels=True)
+plt.title('Convergence times for nest quality and threshold')
+plt.xlabel('Phi_a')
+plt.ylabel('Phi_b')
+plt.savefig('distance_agent_convergence_times.png')
+plt.show()
