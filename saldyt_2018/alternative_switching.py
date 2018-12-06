@@ -11,7 +11,9 @@ import numpy as np
 
 from collections import defaultdict
 
-T = 10
+sns.set()
+
+T = 20
 M = 3
 N = 208  # SD 99
 p = 0.25 # SD 0.1
@@ -28,12 +30,6 @@ rho[(2, 1)] = 0.008
 
 #alpha = [0.0, 0.015, 0.02]
 phi = [0.0, 0.13, 0.13]
-sigmaA  = [0.0, 0.0195, 0.0195]
-sigmaL  = [0.0, 0.018,  0.018]
-sigmaC  = [0.0, 0.044,  0.044]
-#sigmaA  = [0.0, 0.0,   0.0]
-#sigmaL  = [0.0, 0.0,   0.0]
-#sigmaC  = [0.0, 0.0,   0.0]
 lambdas = [0.0, 0.033, 0.033]
 tau     = 0.001
 
@@ -72,21 +68,20 @@ def simulate(N, alpha, phi, iterations=1000, plot=False, quorum_convergence=Fals
                                      C[j] +
                                      A[j])
                            - C[j] * A[i])
-                      for j in range(len(A)) if j != i)
+                      for j in range(M) if j != i)
                 - alpha[i]*A[i]
                 )
 
     def dLi(Population, i):
         S, A, L, C, P = unpack(Population, M)
-        return (- sigmaL[i] * L[i] +
-               (alpha[i] * A[i]
+        return ((alpha[i] * A[i]
                - Q(Population, i)*L[i]
                - sum(tau*C[j]*L[i] for j in range(M) if j != i)
                ))
 
     def dCi(Population, i):
         S, A, L, C, P = unpack(Population, M)
-        return (Q(Population, i) * L[i] #- sigmaC[i] * C[i] -
+        return (Q(Population, i) * L[i]
                    - sum(tau*C[j]*C[i] for j in range(M) if j != i)
                    )
 
@@ -118,6 +113,7 @@ def simulate(N, alpha, phi, iterations=1000, plot=False, quorum_convergence=Fals
         for i in range(1 + M * 4):
             if i == 0:
                 label = 'Searching'
+                index = None
             else:
                 label = ['Assessing', 'Leading', 'Carrying', 'Passive'][(i - 1) // M]
                 index = (i - 1) % M
@@ -137,7 +133,7 @@ def simulate(N, alpha, phi, iterations=1000, plot=False, quorum_convergence=Fals
                 if 'Passive' in label and plot:
                     plt.plot(ts, pop, label=label)
             else:
-                if 'Passive' not in label and plot:
+                if 'Passive' not in label and plot and index != 0:
                     plt.plot(ts, pop, label=label)
         if plot:
             plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
@@ -163,38 +159,38 @@ betas  = alphas
 phis   = [0.013]
 #phis   = np.linspace(0.0, 0.1, 21)
 
-#simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
-#simulate(1000, [0.0, 0.015, 0.015, 0.015], [0.0, 0.013, 0.013, 0.013], True, iterations=1000)
-#simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
-for N in Ns:
-    for alpha in alphas:
-        for beta in betas:
-            for phi_a in phis:
-                for phi_b in phis:
-                    add = lambda k, v : data[k].append(round(v, 4))
-                    data['N'].append(N)
-                    add('alpha', alpha)
-                    add('beta', beta)
-                    add('phi_a', phi_a)
-                    add('phi_b', phi_b)
-                    weights = [0.0, alpha, beta]
-                    phi     = [0.0, phi_a, phi_b]
-                    data['iterations'].append(simulate(N, weights, phi, iterations=400))
-
-#print(data)
-original_data = pandas.DataFrame(data)
-print(original_data)
-#data = original_data.pivot_table(values='iterations', index='beta', columns=['alpha'])
-#sns.heatmap(data, yticklabels=True, xticklabels=True)
-#plt.title('Convergence times for nest quality and threshold')
-#plt.xlabel('Alpha')
-#plt.ylabel('Beta')
-#plt.savefig('agent_convergence_times.png')
-#plt.show()
-data = original_data.pivot_table(values='iterations', index='alpha', columns=['beta'])
-sns.heatmap(data)#, yticklabels=True)
-plt.title('Convergence times for nest quality and threshold')
-plt.xlabel('alpha')
-plt.ylabel('beta')
-plt.savefig('quality_ode_convergence_times.png')
-plt.show()
+simulate(208, [0.0, 0.015, 0.02], [0.0, 0.013, 0.013], plot=True, iterations=500)
+# #simulate(1000, [0.0, 0.015, 0.015, 0.015], [0.0, 0.013, 0.013, 0.013], True, iterations=1000)
+# #simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
+# for N in Ns:
+#     for alpha in alphas:
+#         for beta in betas:
+#             for phi_a in phis:
+#                 for phi_b in phis:
+#                     add = lambda k, v : data[k].append(round(v, 4))
+#                     data['N'].append(N)
+#                     add('alpha', alpha)
+#                     add('beta', beta)
+#                     add('phi_a', phi_a)
+#                     add('phi_b', phi_b)
+#                     weights = [0.0, alpha, beta]
+#                     phi     = [0.0, phi_a, phi_b]
+#                     data['iterations'].append(simulate(N, weights, phi, iterations=400))
+#
+# #print(data)
+# original_data = pandas.DataFrame(data)
+# print(original_data)
+# #data = original_data.pivot_table(values='iterations', index='beta', columns=['alpha'])
+# #sns.heatmap(data, yticklabels=True, xticklabels=True)
+# #plt.title('Convergence times for nest quality and threshold')
+# #plt.xlabel('Alpha')
+# #plt.ylabel('Beta')
+# #plt.savefig('agent_convergence_times.png')
+# #plt.show()
+# data = original_data.pivot_table(values='iterations', index='alpha', columns=['beta'])
+# sns.heatmap(data)#, yticklabels=True)
+# plt.title('Convergence times for nest quality and threshold')
+# plt.xlabel('alpha')
+# plt.ylabel('beta')
+# plt.savefig('quality_ode_convergence_times.png')
+# plt.show()
