@@ -38,8 +38,9 @@ class Agent:
         return str(self)
 
     def encounter(self, nest, weights):
-        self.commitment = weights[nest]
-        self.current    = nest
+        if self.commitment < weights[nest]:
+            self.commitment = weights[nest]
+            self.current    = nest
 
 def transform(agents, agent, weights, phi, free):
     if random() < agent.commitment:
@@ -109,9 +110,11 @@ betas  = [0.02]
 phis   = [0.013]
 phis   = np.linspace(0.0, 0.1, 31)
 
-#simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
+simulate(208, [0.0, 0.015, 0.02, 0.03], [0.0, 0.013, 0.013, 0.013], True, iterations=5000)
+1/0
 #simulate(1000, [0.0, 0.015, 0.015, 0.015], [0.0, 0.013, 0.013, 0.013], True, iterations=1000)
 #simulate(1000, [0.0, 0.3, 0.25, 0.9], [0.0, 0.1, 0.1, 0.05], True, iterations=1000)
+
 for N in Ns:
     for alpha in alphas:
         for beta in betas:
