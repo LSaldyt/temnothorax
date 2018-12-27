@@ -13,7 +13,7 @@ from collections import defaultdict
 
 sns.set()
 
-T = 20
+T = 10
 M = 3
 N = 208  # SD 99
 p = 0.25 # SD 0.1

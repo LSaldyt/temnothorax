@@ -11,6 +11,8 @@ import numpy as np
 
 from collections import defaultdict
 
+sns.set()
+
 # plt.rcParams.update({
 #     "lines.color": "white",
 #     "patch.edgecolor": "white",
@@ -43,14 +45,8 @@ rho[(2, 1)] = 0.008
 # SearchC(L) = 0.018
 # SearchC(C) = 0.0044
 
-alpha = [0.0, 0.015, 0.02]
+#alpha = [0.0, 0.015, 0.02]
 phi = [0.0, 0.13, 0.13]
-sigmaA  = [0.0, 0.0195, 0.0195]
-sigmaL  = [0.0, 0.018,  0.018]
-sigmaC  = [0.0, 0.044,  0.044]
-#sigmaA  = [0.0, 0.0,   0.0]
-#sigmaL  = [0.0, 0.0,   0.0]
-#sigmaC  = [0.0, 0.0,   0.0]
 lambdas = [0.0, 0.033, 0.033]
 tau     = 0.001
 
@@ -72,6 +68,7 @@ def Q(Population, i):
     #return int(A[i] + L[i] + C[i] + P[i] > T)
 
 def I(Ri, S):
+    return Ri * S
     return Ri if Ri < T and S > 0 else 0
 
 def dS(Population):
@@ -90,8 +87,7 @@ def dAi(Population, i):
 
 def dLi(Population, i):
     S, A, L, C, P = unpack(Population, M)
-    return (- sigmaL[i] * L[i] +
-           (alpha[i] * A[i]
+    return ((alpha[i] * A[i]
            - Q(Population, i)*L[i]
            + sum(rho[(j, i)]*L[j] -  rho[(i, j)]*L[i]
            #- sum(tau*C[j]*L[i]
@@ -99,7 +95,7 @@ def dLi(Population, i):
 
 def dCi(Population, i):
     S, A, L, C, P = unpack(Population, M)
-    return (Q(Population, i) * L[i] #- sigmaC[i] * C[i] -
+    return (Q(Population, i) * L[i]
                #sum(tau*C[j]*C[i] for j in range(M) if j != i) +
                + sum(
                    (rho[(j, i)]*C[j] -  rho[(i, j)]*C[i]) for j in range(M) if j != i))
@@ -140,7 +136,7 @@ for do_passive in [True, False]:
             if 'Passive' in label:
                 plt.plot(ts, pop, label=label)
         else:
-            if 'Passive' not in label:
+            if 'Passive' not in label and (i == 0 or (i - 1) % M != 0):
                 plt.plot(ts, pop, label=label)
 
     plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
