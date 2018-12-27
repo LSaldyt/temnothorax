@@ -29,7 +29,7 @@ sns.set()
 
 # Populations: [S, A, R, P]
 
-T = 20
+T = 10
 M = 3
 N = 208  # SD 99
 p = 0.25 # SD 0.1
@@ -38,20 +38,8 @@ final_percentage = 0.95
 rho = defaultdict(lambda : 0)
 rho[(2, 1)] = 0.008
 
-# From Granivoskiy 2012
-# SearchE = 0.0191
-# SearchA = 0.0195
-# SearchC(L) = 0.018
-# SearchC(C) = 0.0044
-
 alpha = [0.0, 0.015, 0.02]
 phi = [0.0, 0.13, 0.13]
-sigmaA  = [0.0, 0.0195, 0.0195]
-sigmaL  = [0.0, 0.018,  0.018]
-sigmaC  = [0.0, 0.044,  0.044]
-#sigmaA  = [0.0, 0.0,   0.0]
-#sigmaL  = [0.0, 0.0,   0.0]
-#sigmaC  = [0.0, 0.0,   0.0]
 lambdas = [0.0, 0.033, 0.033]
 tau     = 0.001
 
@@ -68,7 +56,8 @@ def pack(S=0, A=[], R=[], P=[]):
     return [S, *A, *R, *P]
 
 def I(Ri, S):
-    return Ri if Ri < T and S > 0 else 0
+    return Ri * S
+    return Ri if Ri < T and S >= 0 else 0
 
 def dS(Population):
     S, A, R, P = unpack(Population, M)
@@ -124,7 +113,7 @@ for do_passive in [True, False]:
             if 'Passive' in label:
                 plt.plot(ts, pop, label=label)
         else:
-            if 'Passive' not in label:
+            if 'Passive' not in label and (i - 1) % M != 0:
                 plt.plot(ts, pop, label=label)
 
     plt.legend(loc='center right', bbox_to_anchor=(1, 0.5))
