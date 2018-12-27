@@ -1,0 +1,12 @@
+\begin{frame}{Population flow overview}
+    \begin{equation}
+    \begin{aligned}
+         & \frac{dS}{dt} = S * \sum_i \big[\mcolor{orange}{- \phi_i} \mcolor{purple}{- \lambda_iL_i} \mcolor{red}{- \tau C_i} \mcolor{blue}{+ \sigma_{Ai}A_i + \sigma_{Li}L_i + \sigma_{Ci}C_i} \big] \\
+         & \frac{dA_i}{dt} = S * [\mcolor{orange}{\phi_i} + \mcolor{purple}{\lambda_iL_i} + \mcolor{red}{\tau \big[ C_i * \sum_{j \neq i}{(S + L_j + C_j + A_j)} - \sum_{j \neq i}{C_j * A_i} \big] } \\ & \mcolor{blue}{- \sigma_{Ai}A_i}] \mcolor{green}{- \alpha_iA_i} \\
+        & \frac{dL_i}{dt} = \mcolor{green}{\alpha_iA_i} - \mcolor{yellow}{Q(i)L_i} - \mcolor{red}{\sum_{j \neq i, j} \tau C_jL_i} - \mcolor{blue}{- \sigma_{Ci}C_i} \\
+        & \frac{dC_i}{dt} = \mcolor{yellow}{Q(i)L_i} - \mcolor{red}{\sum_{j \neq i, j} \tau C_jC_i} - \mcolor{blue}{- \sigma_{Ci}C_i} \\
+        & \frac{dP_i}{dt} = \sum_{j \neq i} [\mcolor{red}{\tau P_j C_i} \mcolor{red}{- \tau P_i C_j}] \\
+    \end{aligned}
+    \end{equation}
+
+\end{frame}
